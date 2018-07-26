@@ -1,0 +1,31 @@
+
+target/
+logs/
+
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+
+# jetbrains related ignores
+.idea/
+**/*.iml
+**/*.db
+
+# netbeans related ignores
+nbproject/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+.nb-gradle/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# system specific files
+.DS_Store
