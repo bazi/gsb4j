@@ -1,4 +1,5 @@
 # gsb4j
+[![Build Status](https://travis-ci.org/bazi/gsb4j.svg?branch=master)](https://travis-ci.org/bazi/gsb4j)
 
 Gsb4j is a Java client implementation of [Google Safe Browsing](https://developers.google.com/safe-browsing/) APIv4.
 It has both Lookup API and Update API implementations. 
