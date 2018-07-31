@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.cache;
 
 
@@ -67,19 +68,12 @@ public class ThreatListDescriptorsCache
     public Collection<ThreatListDescriptor> getRefreshed()
     {
         List<ThreatListDescriptor> ls = threatListGetterProvider.get().getLists();
-        put( ls );
+        synchronized ( this )
+        {
+            cache.addAll( ls );
+        }
         return Collections.unmodifiableCollection( cache );
     }
 
-
-    /**
-     * Updates threat list descriptors.
-     *
-     * @param descriptors descriptors to put into cache
-     */
-    public synchronized void put( List<ThreatListDescriptor> descriptors )
-    {
-        cache.addAll( descriptors );
-    }
 }
 

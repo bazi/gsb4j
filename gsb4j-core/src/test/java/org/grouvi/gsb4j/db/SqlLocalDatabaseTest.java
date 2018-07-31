@@ -118,13 +118,6 @@ public class SqlLocalDatabaseTest
     }
 
 
-    @Test( expected = UnsupportedOperationException.class )
-    public void testLoadReader() throws Exception
-    {
-        db.loadReader( descriptor );
-    }
-
-
     @Test
     public void testPersist() throws Exception
     {

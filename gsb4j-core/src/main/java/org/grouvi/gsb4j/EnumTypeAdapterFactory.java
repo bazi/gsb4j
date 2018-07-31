@@ -33,7 +33,7 @@ import com.google.gson.stream.JsonWriter;
 
 /**
  * Type adapter factory that creates type adapters for enums. Type adapters of this factory serialize and deserialize
- * enum values as is, i.e. there is not case change.
+ * enum values as is, i.e. there is no case change.
  *
  * @author azilet
  */

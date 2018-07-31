@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.api;
 
 
@@ -28,12 +29,12 @@ public interface SafeBrowsingApi
 {
 
     /**
-     * Tag name to identify Lookup API client implementation.
+     * Name to identify Lookup API client implementation.
      */
     String LOOKUP_API = "lookup";
 
     /**
-     * Tag name to identify Update API client implementation.
+     * Name to identify Update API client implementation.
      */
     String UPDATE_API = "update";
 

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.api;
 
 
@@ -28,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.grouvi.gsb4j.SafeBrowsingAppModule;
+import org.grouvi.gsb4j.Gsb4jConst;
 import org.grouvi.gsb4j.cache.ThreatListDescriptorsCache;
 import org.grouvi.gsb4j.data.ThreatEntry;
 import org.grouvi.gsb4j.data.ThreatInfo;
@@ -38,7 +39,7 @@ import org.grouvi.gsb4j.db.LocalDatabase;
 import org.grouvi.gsb4j.url.Canonicalization;
 import org.grouvi.gsb4j.url.Hashing;
 import org.grouvi.gsb4j.url.SuffixPrefixExpressions;
-import org.grouvi.gsb4j.util.SbHelper;
+import org.grouvi.gsb4j.util.Gsb4jUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,13 +81,13 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
     private UpdateApiCache cache;
 
     @Inject
-    private SbHelper sbHelper;
+    private Gsb4jUtils gsb4jUtils;
 
     @Inject
     private StateHolder stateHolder;
 
     @Inject
-    @Named( SafeBrowsingAppModule.TAG )
+    @Named( Gsb4jConst.GSB4J )
     private ScheduledExecutorService executor;
 
 
@@ -283,7 +284,7 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         ApiResponse apiResponse;
         HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "fullHashes:find", payload );
         try ( CloseableHttpResponse resp = httpClient.execute( req );
-              InputStream is = httpHelper.getInputStream( resp ) )
+              InputStream is = getInputStream( resp ) )
         {
             // TODO: back-off on status codes other than 200
             apiResponse = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
@@ -306,7 +307,7 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
                 }
                 else if ( apiResponse.negativeCacheDuration != null )
                 {
-                    long duration = sbHelper.durationToMillis( apiResponse.negativeCacheDuration );
+                    long duration = gsb4jUtils.durationToMillis( apiResponse.negativeCacheDuration );
                     cache.putNegative( hexFull, duration );
                 }
             }
@@ -318,7 +319,7 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         {
             if ( apiResponse.minimumWaitDuration != null )
             {
-                long duration = sbHelper.durationToMillis( apiResponse.minimumWaitDuration );
+                long duration = gsb4jUtils.durationToMillis( apiResponse.minimumWaitDuration );
                 stateHolder.setMinWaitDurationForFinds( duration );
             }
         }

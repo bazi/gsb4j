@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.api;
 
 
@@ -20,7 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.grouvi.gsb4j.data.ThreatMatch;
-import org.grouvi.gsb4j.util.SbHelper;
+import org.grouvi.gsb4j.util.Gsb4jUtils;
 
 import com.google.inject.Inject;
 
@@ -33,7 +34,7 @@ import com.google.inject.Inject;
 abstract class ApiResponseCacheBase implements Runnable
 {
     @Inject
-    SbHelper sbHelper;
+    Gsb4jUtils gsb4jUtils;
 
 
     final void startMe( ScheduledExecutorService scheduler, long initialDelay, long delay, TimeUnit unit )
@@ -46,12 +47,12 @@ abstract class ApiResponseCacheBase implements Runnable
      * Checks if threat match has expired.
      *
      * @param match threat match to check
-     * @return {@code true} match has expired; {@code false} otherwise
+     * @return {@code true} if match has expired; {@code false} otherwise
      */
     boolean isExpired( ThreatMatch match )
     {
         String duration = match.getCacheDuration();
-        return match.getTimestamp() + sbHelper.durationToMillis( duration ) < System.currentTimeMillis();
+        return match.getTimestamp() + gsb4jUtils.durationToMillis( duration ) < System.currentTimeMillis();
     }
 }
 

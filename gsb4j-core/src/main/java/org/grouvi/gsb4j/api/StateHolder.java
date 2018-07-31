@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.api;
 
 
@@ -27,7 +28,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 import org.grouvi.gsb4j.data.ThreatListDescriptor;
-import org.grouvi.gsb4j.util.SbProperties;
+import org.grouvi.gsb4j.properties.Gsb4jProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,15 +51,15 @@ class StateHolder
     private static final String FIND_MIN_WAIT_TIMESTAMP_KEY = "find_min_wait_timestamp";
 
     @Inject
-    private SbProperties sbProperties;
+    private Gsb4jProperties sbProperties;
 
     private final Properties states = new Properties();
 
 
     @Inject
-    public StateHolder( SbProperties sbProperties )
+    public StateHolder( Gsb4jProperties sbProperties )
     {
-        File file = getStatesFile( sbProperties.getDbDirectory() );
+        File file = getStatesFile( sbProperties.getDataDirectory() );
         if ( file.exists() )
         {
             try ( InputStream is = new FileInputStream( file ) )
@@ -211,7 +212,7 @@ class StateHolder
 
     private synchronized void dumpToFile() throws IOException
     {
-        File file = getStatesFile( sbProperties.getDbDirectory() );
+        File file = getStatesFile( sbProperties.getDataDirectory() );
         try ( OutputStream os = new FileOutputStream( file ) )
         {
             states.store( os, "" );

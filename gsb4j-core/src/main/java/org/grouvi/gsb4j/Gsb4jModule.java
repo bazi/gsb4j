@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.grouvi.gsb4j.api.SafeBrowsingApiModule;
 import org.grouvi.gsb4j.db.LocalDatabaseModule;
+import org.grouvi.gsb4j.properties.Gsb4jPropertiesModule;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 
@@ -31,37 +31,62 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.ProvisionException;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 
 /**
- * Guice module for Safe Browsing API client implementation.
+ * Guice module for Gsb4j - Google Safe Browsing API client implementation. This is the main module to bootstrap gsb4j
+ * bindings.
  *
  * @author azilet
  */
-public class SafeBrowsingAppModule extends AbstractModule
+public class Gsb4jModule extends AbstractModule
 {
-    public static final String TAG = "safe-browsing";
+
+    private final Path propertiesFile;
+
+
+    /**
+     * Default constructor. Using this constructor implies that external configurations are performed through system
+     * properties.
+     *
+     * @see #Gsb4jModule(java.nio.file.Path)
+     */
+    public Gsb4jModule()
+    {
+        this.propertiesFile = null;
+    }
+
+
+    /**
+     * Constructor with properties file.
+     *
+     * @param propertiesFile path to properties file
+     */
+    public Gsb4jModule( Path propertiesFile )
+    {
+        this.propertiesFile = propertiesFile;
+    }
 
 
     @Override
     protected void configure()
     {
         bind( CloseableHttpClient.class )
-                .annotatedWith( Names.named( TAG ) )
+                .annotatedWith( Names.named( Gsb4jConst.GSB4J ) )
                 .toProvider( HttpClientProvider.class )
                 .asEagerSingleton();
 
+        install( new Gsb4jPropertiesModule().setPropertiesFile( propertiesFile ) );
         install( new LocalDatabaseModule() );
         install( new SafeBrowsingApiModule() );
     }
 
 
     @Provides
-    @Named( TAG )
+    @Named( Gsb4jConst.GSB4J )
     @Singleton
     Gson makeGson( EnumTypeAdapterFactory factory )
     {
@@ -72,25 +97,7 @@ public class SafeBrowsingAppModule extends AbstractModule
 
 
     @Provides
-    @Named( TAG )
-    @Singleton
-    Properties getProperties()
-    {
-        Properties properties = new Properties();
-        try ( InputStream is = ClassLoader.getSystemResourceAsStream( "app.properties" ) )
-        {
-            properties.load( is );
-            return properties;
-        }
-        catch ( IOException ex )
-        {
-            throw new ProvisionException( "Failed to read properties file: " + ex.getMessage() );
-        }
-    }
-
-
-    @Provides
-    @Named( TAG )
+    @Named( Gsb4jConst.GSB4J )
     @Singleton
     ScheduledExecutorService makeScheduler()
     {

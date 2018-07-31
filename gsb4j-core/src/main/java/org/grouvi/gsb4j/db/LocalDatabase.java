@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.db;
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
@@ -41,16 +41,6 @@ public interface LocalDatabase
 
 
     /**
-     * Gets a reader that can be used to load hashes for the threat list descriptor.
-     *
-     * @param descriptor descriptor to get reader for
-     * @return buffered reader to load hashes
-     * @throws IOException when IO errors occur
-     */
-    BufferedReader loadReader( ThreatListDescriptor descriptor ) throws IOException;
-
-
-    /**
      * Saves hashes for the threat list descriptor.
      *
      * @param descriptor descriptor for the threat list hashes
@@ -66,6 +56,7 @@ public interface LocalDatabase
      * @param hash hash prefix to check
      * @param descriptor descriptor to look in
      * @return {@code true} if hash exists in the local database; {@code false} otherwise
+     *
      * @throws IOException when IO errors occur
      */
     boolean contains( String hash, ThreatListDescriptor descriptor ) throws IOException;

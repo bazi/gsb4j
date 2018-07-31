@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j;
 
 
 import java.io.IOException;
-import java.util.Properties;
+
+import org.grouvi.gsb4j.properties.Gsb4jProperties;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -32,30 +34,25 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.DeflateDecompressingEntity;
 import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
 
 
 /**
- * Custom HTTP client provider for Safe Browsing API.
+ * Provider of HTTP client to be used for making requests to Safe Browsing API.
  *
  * @author azilet
  */
 class HttpClientProvider implements Provider<CloseableHttpClient>
 {
-    private final String referer;
-
 
     @Inject
-    HttpClientProvider( @Named( SafeBrowsingAppModule.TAG ) Properties properties )
-    {
-        this.referer = properties.getProperty( "api.referer" );
-    }
+    Gsb4jProperties properties;
 
 
     @Override
@@ -71,19 +68,34 @@ class HttpClientProvider implements Provider<CloseableHttpClient>
                 .setSocketTimeout( 5000 )
                 .build();
 
-        return HttpClients.custom()
+        HttpClientBuilder httpClientBuilder = HttpClients.custom()
                 .setDefaultRequestConfig( requestConfig )
                 .disableCookieManagement()
-                .addInterceptorFirst( new DefaultRequestInterceptor() )
                 .addInterceptorFirst( new GzipCompressionRequestInterceptor() )
                 .addInterceptorFirst( new GzipCompressionResponseInterceptor() )
-                .setConnectionManager( pcm )
-                .build();
+                .setConnectionManager( pcm );
+
+        String referer = properties.getApiHttpReferrer();
+        if ( referer != null && !referer.isEmpty() )
+        {
+            httpClientBuilder.addInterceptorLast( new RequestRefererInterceptor( referer ) );
+        }
+
+        return httpClientBuilder.build();
     }
 
 
-    private class DefaultRequestInterceptor implements HttpRequestInterceptor
+    private static class RequestRefererInterceptor implements HttpRequestInterceptor
     {
+        private final String referer;
+
+
+        RequestRefererInterceptor( String referer )
+        {
+            this.referer = referer;
+        }
+
+
         @Override
         public void process( HttpRequest hr, HttpContext hc ) throws HttpException, IOException
         {

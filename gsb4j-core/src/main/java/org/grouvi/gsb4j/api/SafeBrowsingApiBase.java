@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.api;
 
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.grouvi.gsb4j.SafeBrowsingAppModule;
+import org.grouvi.gsb4j.Gsb4jConst;
 import org.grouvi.gsb4j.data.PlatformType;
 import org.grouvi.gsb4j.data.ThreatMatch;
-import org.grouvi.gsb4j.util.HttpHelper;
-import org.grouvi.gsb4j.util.SbProperties;
+import org.grouvi.gsb4j.properties.Gsb4jClientInfo;
+import org.grouvi.gsb4j.properties.Gsb4jProperties;
 import org.slf4j.Logger;
 
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
@@ -47,17 +52,17 @@ import com.google.inject.name.Named;
 abstract class SafeBrowsingApiBase
 {
     @Inject
-    @Named( value = SafeBrowsingAppModule.TAG )
+    @Named( value = Gsb4jConst.GSB4J )
     CloseableHttpClient httpClient;
 
     @Inject
-    HttpHelper httpHelper;
+    Gsb4jClientInfo clientInfo;
 
     @Inject
-    SbProperties sbProperties;
+    Gsb4jProperties gsb4jProperties;
 
     @Inject
-    @Named( value = SafeBrowsingAppModule.TAG )
+    @Named( value = Gsb4jConst.GSB4J )
     Gson gson;
 
 
@@ -65,26 +70,15 @@ abstract class SafeBrowsingApiBase
 
 
     /**
-     * Refer to {@link SafeBrowsingApiBase#selectMoreGenericThreat(org.grouvi.sb.data.ThreatMatch[])} docs.
+     * Selects threat among supplied matches that has a broader impact. A threat to all or any of platforms has a
+     * broader impact than a treat to a specific platform.
      *
-     * @param matches
-     * @return
+     * @param matches list of matches to select from; should not be empty
+     * @return a match that has more generic impact; or first one if there is no such a threat
      */
     protected ThreatMatch selectMoreGenericThreat( List<ThreatMatch> matches )
     {
-        return selectMoreGenericThreat( matches.toArray( new ThreatMatch[matches.size()] ) );
-    }
-
-
-    /**
-     * Selects threat among supplied matches that has an impact to all or any of platforms.
-     *
-     * @param matches matches to select from
-     * @return a match that has more generic impact; or first one if there is no such a threat
-     */
-    protected ThreatMatch selectMoreGenericThreat( ThreatMatch[] matches )
-    {
-        if ( matches.length > 1 )
+        if ( matches.size() > 1 )
         {
             StringBuilder sb = new StringBuilder();
             for ( ThreatMatch match : matches )
@@ -92,19 +86,23 @@ abstract class SafeBrowsingApiBase
                 sb.append( System.lineSeparator() ).append( gson.toJson( match ) );
             }
             getLogger().info( "Multiple threat matches found: {}", sb.toString() );
-        }
-        for ( ThreatMatch match : matches )
-        {
-            if ( match.getPlatformType() == PlatformType.ALL_PLATFORMS )
+
+            for ( ThreatMatch match : matches )
             {
-                return match;
+                if ( match.getPlatformType() == PlatformType.ALL_PLATFORMS )
+                {
+                    return match;
+                }
             }
-            if ( match.getPlatformType() == PlatformType.ANY_PLATFORM )
+            for ( ThreatMatch match : matches )
             {
-                return match;
+                if ( match.getPlatformType() == PlatformType.ANY_PLATFORM )
+                {
+                    return match;
+                }
             }
         }
-        return matches[0];
+        return matches.get( 0 );
     }
 
 
@@ -119,8 +117,8 @@ abstract class SafeBrowsingApiBase
     HttpUriRequest makeRequest( String httpMethod, String endpoint, Object payload )
     {
         RequestBuilder builder = RequestBuilder.create( httpMethod )
-                .setUri( sbProperties.getBaseUrl() + endpoint )
-                .addParameter( "key", sbProperties.getApiKey() )
+                .setUri( Gsb4jConst.API_BASE_URL + endpoint )
+                .addParameter( "key", gsb4jProperties.getApiKey() )
                 .setHeader( HttpHeaders.CONTENT_TYPE, "application/json" );
 
         if ( payload != null )
@@ -128,6 +126,29 @@ abstract class SafeBrowsingApiBase
             builder.setEntity( new StringEntity( gson.toJson( payload ), StandardCharsets.UTF_8 ) );
         }
         return builder.build();
+    }
+
+
+    /**
+     * Gets input stream of the http response. Stream is returned only if the response is OK and a valid content stream
+     * exists. Exception is thrown otherwise.
+     *
+     * @param response http response to get input stream from
+     * @return input stream if valid stream exists; never {@code null}
+     * @throws IOException when no valid response stream was found; for example when the response status is not HTTP
+     * 200, or there is no response entity at all
+     */
+    InputStream getInputStream( HttpResponse response ) throws IOException
+    {
+        if ( response.getStatusLine().getStatusCode() != HttpStatus.SC_OK )
+        {
+            throw new IOException( "Response status code is not OK: " + response.getStatusLine() );
+        }
+        if ( response.getEntity() == null )
+        {
+            throw new IOException( "No message entity found in response" );
+        }
+        return response.getEntity().getContent();
     }
 
 
@@ -141,7 +162,7 @@ abstract class SafeBrowsingApiBase
     Map<String, Object> wrapPayload( String name, Object payload )
     {
         Map<String, Object> map = new HashMap<>();
-        map.put( "client", sbProperties.makeClientInfo() );
+        map.put( "client", clientInfo.make() );
         map.put( name, payload );
         return map;
     }

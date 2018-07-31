@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.db;
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sql.DataSource;
 
-import org.grouvi.gsb4j.SafeBrowsingAppModule;
+import org.grouvi.gsb4j.Gsb4jConst;
 import org.grouvi.gsb4j.data.ThreatListDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +56,14 @@ class SqlLocalDatabase implements LocalDatabase
     final int BATCH_SIZE = 50 * 1000;
 
     @Inject
-    @Named( SafeBrowsingAppModule.TAG )
+    @Named( Gsb4jConst.GSB4J )
     DataSource dataSource;
 
 
     @Override
     public List<String> load( ThreatListDescriptor descriptor ) throws IOException
     {
-        checkTable( descriptor );
+        checkTableForDescriptor( descriptor );
 
         String s = "SELECT prefix FROM " + descriptor + " ORDER BY prefix";
         try ( Connection conn = dataSource.getConnection();
@@ -86,16 +86,9 @@ class SqlLocalDatabase implements LocalDatabase
 
 
     @Override
-    public BufferedReader loadReader( ThreatListDescriptor descriptor ) throws IOException
-    {
-        throw new UnsupportedOperationException( "Buffered reader can not be created for SQL database." );
-    }
-
-
-    @Override
     public void persist( ThreatListDescriptor descriptor, List<String> hashes ) throws IOException
     {
-        checkTable( descriptor );
+        checkTableForDescriptor( descriptor );
 
         String s = "INSERT INTO " + descriptor + " VALUES (?)";
         try ( Connection conn = dataSource.getConnection();
@@ -131,7 +124,7 @@ class SqlLocalDatabase implements LocalDatabase
     @Override
     public boolean contains( String hash, ThreatListDescriptor descriptor ) throws IOException
     {
-        checkTable( descriptor );
+        checkTableForDescriptor( descriptor );
 
         String s = "SELECT prefix FROM " + descriptor + " WHERE prefix=?";
         try ( Connection conn = dataSource.getConnection();
@@ -156,7 +149,15 @@ class SqlLocalDatabase implements LocalDatabase
         {
             st.execute( "DROP TABLE IF EXISTS " + descriptor );
             conn.commit();
-            CREATED_TABLES.remove( descriptor );
+            LOCK.lock();
+            try
+            {
+                CREATED_TABLES.remove( descriptor );
+            }
+            finally
+            {
+                LOCK.unlock();
+            }
         }
         catch ( SQLException ex )
         {
@@ -166,7 +167,7 @@ class SqlLocalDatabase implements LocalDatabase
     }
 
 
-    private void checkTable( ThreatListDescriptor descriptor ) throws IOException
+    private void checkTableForDescriptor( ThreatListDescriptor descriptor ) throws IOException
     {
         if ( CREATED_TABLES.contains( descriptor ) )
         {
@@ -178,7 +179,7 @@ class SqlLocalDatabase implements LocalDatabase
         {
             if ( !CREATED_TABLES.contains( descriptor ) )
             {
-                _createTable( descriptor );
+                createTable( descriptor );
                 CREATED_TABLES.add( descriptor );
             }
         }
@@ -193,7 +194,7 @@ class SqlLocalDatabase implements LocalDatabase
     }
 
 
-    private void _createTable( ThreatListDescriptor descriptor ) throws SQLException
+    private void createTable( ThreatListDescriptor descriptor ) throws SQLException
     {
         String sql = "CREATE TABLE IF NOT EXISTS " + descriptor
                 + " (prefix TEXT CONSTRAINT pk PRIMARY KEY ASC ON CONFLICT REPLACE)";

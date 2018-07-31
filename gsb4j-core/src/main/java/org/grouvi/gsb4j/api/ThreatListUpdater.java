@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.api;
 
 
@@ -32,7 +33,7 @@ import org.grouvi.gsb4j.data.updates.CompressionType;
 import org.grouvi.gsb4j.data.updates.Constraints;
 import org.grouvi.gsb4j.data.updates.ListUpdateRequest;
 import org.grouvi.gsb4j.data.updates.ListUpdateResponse;
-import org.grouvi.gsb4j.util.SbHelper;
+import org.grouvi.gsb4j.util.Gsb4jUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ class ThreatListUpdater extends SafeBrowsingApiBase
     private UpdateResponseHandler updateResponseHandler;
 
     @Inject
-    private SbHelper sbHelper;
+    private Gsb4jUtils gsb4jUtils;
 
     @Inject
     private ThreatListDescriptorsCache descriptorsCache;
@@ -115,7 +116,7 @@ class ThreatListUpdater extends SafeBrowsingApiBase
 
         ApiResponse apiResp;
         try ( CloseableHttpResponse resp = httpClient.execute( req );
-              InputStream is = httpHelper.getInputStream( resp ) )
+              InputStream is = getInputStream( resp ) )
         {
             apiResp = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
         }
@@ -134,7 +135,7 @@ class ThreatListUpdater extends SafeBrowsingApiBase
         {
             if ( apiResp.minimumWaitDuration != null )
             {
-                long duration = sbHelper.durationToMillis( apiResp.minimumWaitDuration );
+                long duration = gsb4jUtils.durationToMillis( apiResp.minimumWaitDuration );
                 stateHolder.setMinWaitDurationForUpdates( duration );
             }
         }

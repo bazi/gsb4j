@@ -18,7 +18,7 @@ package org.grouvi.gsb4j.db;
 
 import javax.sql.DataSource;
 
-import org.grouvi.gsb4j.SafeBrowsingAppModule;
+import org.grouvi.gsb4j.Gsb4jConst;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
@@ -36,7 +36,7 @@ public class LocalDatabaseModule extends AbstractModule
     {
         bind( LocalDatabase.class ).to( SqlLocalDatabase.class );
 
-        bind( DataSource.class ).annotatedWith( Names.named( SafeBrowsingAppModule.TAG ) )
+        bind( DataSource.class ).annotatedWith( Names.named( Gsb4jConst.GSB4J ) )
                 .toProvider( SqlConnectionProvider.class ).asEagerSingleton();
     }
 }

@@ -12,10 +12,6 @@
     <name>GSB4J Core</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <data.dir>./safe-browsing-db</data.dir>
-    </properties>
-
     <dependencies>
 
         <dependency>

@@ -52,7 +52,7 @@ public class ThreatListGetter extends SafeBrowsingApiBase
         List<ThreatListDescriptor> threatLists;
         HttpUriRequest req = makeRequest( HttpGet.METHOD_NAME, "threatLists", null );
         try ( CloseableHttpResponse resp = httpClient.execute( req );
-              InputStream is = httpHelper.getInputStream( resp ) )
+              InputStream is = getInputStream( resp ) )
         {
             ThreatListsResponse apiResp = gson.fromJson( new InputStreamReader( is ), ThreatListsResponse.class );
             threatLists = apiResp.threatLists;

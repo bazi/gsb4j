@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.db;
 
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
+import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.properties.Gsb4jProperties;
 import org.sqlite.JDBC;
 
 import com.google.inject.Inject;
@@ -45,40 +46,31 @@ class SqlConnectionProvider implements Provider<DataSource>
 
 
     @Inject
-    SqlConnectionProvider()
+    SqlConnectionProvider( Gsb4jProperties properties )
     {
-        Properties properties = new Properties();
-        try ( InputStream is = ClassLoader.getSystemResourceAsStream( "db.sb.properties" ) )
+        Path dataDir = properties.getDataDirectory();
+        if ( !Files.exists( dataDir ) )
         {
-            properties.load( is );
-        }
-        catch ( IOException ex )
-        {
-            throw new ProvisionException( "Failed to load local database properties", ex );
-        }
-
-        String jdbcUrl = properties.getProperty( "jdbcUrl" );
-        if ( jdbcUrl != null && jdbcUrl.startsWith( JDBC.PREFIX ) )
-        {
-            Path path = Paths.get( jdbcUrl.substring( JDBC.PREFIX.length() ) );
-            if ( !Files.exists( path.getParent() ) )
+            try
             {
-                try
-                {
-                    Files.createDirectories( path.getParent() );
-                }
-                catch ( IOException ex )
-                {
-                    throw new ProvisionException( "Failed to create data directory", ex );
-                }
+                Files.createDirectories( dataDir );
+            }
+            catch ( IOException ex )
+            {
+                throw new ProvisionException( "Failed to create data directory", ex );
             }
         }
-        else
-        {
-            throw new ProvisionException( "Invalid JDBC URL" );
-        }
 
-        HikariConfig config = new HikariConfig( properties );
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl( JDBC.PREFIX + dataDir.resolve( "local.db" ) );
+        config.setPoolName( Gsb4jConst.GSB4J );
+        config.setAutoCommit( false );
+        config.setConnectionTimeout( TimeUnit.SECONDS.toMillis( 20 ) );
+        config.setIdleTimeout( TimeUnit.MINUTES.toMillis( 10 ) );
+        config.setMaxLifetime( TimeUnit.MINUTES.toMillis( 30 ) );
+        config.setMinimumIdle( 4 );
+        config.setMaximumPoolSize( 10 );
+
         this.dataSource = new HikariDataSource( config );
     }
 

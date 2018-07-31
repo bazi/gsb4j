@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.util;
 
 
@@ -25,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Simple percent encoding class. Percent encoding is basically a URL encoding that is performed by {@link URLEncoder}
  * with the exception of space character which is encoded as "+" according to "application/x-www-form-urlencoded" specs.
- * This class encodes spaces to "%20".
+ * This class encodes spaces to "%20". TODO:
  *
  * @author azilet
  */

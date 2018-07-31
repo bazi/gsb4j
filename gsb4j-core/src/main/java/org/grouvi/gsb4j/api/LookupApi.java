@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.grouvi.gsb4j.api;
 
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Map;
 
 import org.grouvi.gsb4j.data.ThreatEntry;
@@ -83,10 +85,10 @@ class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "threatMatches:find", body );
 
         try ( CloseableHttpResponse resp = httpClient.execute( req );
-              InputStream is = httpHelper.getInputStream( resp ) )
+              InputStream is = getInputStream( resp ) )
         {
             ApiResponse apiResponse = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
-            if ( apiResponse.matches != null && apiResponse.matches.length > 0 )
+            if ( apiResponse.matches != null && !apiResponse.matches.isEmpty() )
             {
                 ThreatMatch match = selectMoreGenericThreat( apiResponse.matches );
                 cache.put( match );
@@ -111,7 +113,7 @@ class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi
 
     private static class ApiResponse
     {
-        private ThreatMatch[] matches;
+        List<ThreatMatch> matches;
     }
 
 
