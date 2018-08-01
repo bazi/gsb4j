@@ -22,15 +22,12 @@ import java.nio.file.Paths;
 
 import org.grouvi.gsb4j.Gsb4jConst;
 
-import com.google.inject.ImplementedBy;
-
 
 /**
  * Interface to get application specific properties.
  *
  * @author <a href="https://github.com/bazi">bazi</a>
  */
-@ImplementedBy( Gsb4jSystemProperties.class )
 public interface Gsb4jProperties
 {
 

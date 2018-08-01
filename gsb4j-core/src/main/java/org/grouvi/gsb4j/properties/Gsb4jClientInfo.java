@@ -47,7 +47,7 @@ public class Gsb4jClientInfo
     public final String CLIENT_VERSION;
 
 
-    private Gsb4jClientInfo()
+    Gsb4jClientInfo()
     {
         Properties prop = new Properties();
         try ( InputStream is = ClassLoader.getSystemResourceAsStream( "client-info.properties" ) )

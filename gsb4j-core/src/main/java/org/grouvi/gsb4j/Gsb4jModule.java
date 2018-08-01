@@ -27,6 +27,7 @@ import org.grouvi.gsb4j.properties.Gsb4jPropertiesModule;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
@@ -91,6 +92,7 @@ public class Gsb4jModule extends AbstractModule
     Gson makeGson( EnumTypeAdapterFactory factory )
     {
         return new GsonBuilder()
+                .setFieldNamingPolicy( FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES )
                 .registerTypeAdapterFactory( factory )
                 .create();
     }
