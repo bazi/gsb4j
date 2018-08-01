@@ -26,7 +26,7 @@
     <packaging>pom</packaging>
     
     <modules>
-        <module>gsb4j-core</module>
+        <module>core</module>
         <module>http</module>
     </modules>
 
