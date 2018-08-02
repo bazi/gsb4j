@@ -70,6 +70,7 @@ public class Gsb4jHttpServer
         catch ( Exception ex )
         {
             LOGGER.error( "Failed to start Gsb4j HTTP endpoint", ex );
+            System.exit( 1 );
             return;
         }
         server.join();

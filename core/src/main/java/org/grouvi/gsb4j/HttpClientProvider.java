@@ -20,6 +20,8 @@ package org.grouvi.gsb4j;
 import java.io.IOException;
 
 import org.grouvi.gsb4j.properties.Gsb4jProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -50,6 +52,7 @@ import com.google.inject.Provider;
  */
 class HttpClientProvider implements Provider<CloseableHttpClient>
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( HttpClientProvider.class );
 
     @Inject
     Gsb4jProperties properties;
@@ -61,11 +64,10 @@ class HttpClientProvider implements Provider<CloseableHttpClient>
         PoolingHttpClientConnectionManager pcm = new PoolingHttpClientConnectionManager();
         pcm.setMaxTotal( 50 );
         pcm.setDefaultMaxPerRoute( 5 );
-        pcm.setValidateAfterInactivity( 10000 );
+        pcm.setValidateAfterInactivity( 10_000 );
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout( 15000 )
-                .setSocketTimeout( 5000 )
+                .setConnectTimeout( 15_000 )
                 .build();
 
         HttpClientBuilder httpClientBuilder = HttpClients.custom()
@@ -78,29 +80,54 @@ class HttpClientProvider implements Provider<CloseableHttpClient>
         String referer = properties.getApiHttpReferrer();
         if ( referer != null && !referer.isEmpty() )
         {
-            httpClientBuilder.addInterceptorLast( new RequestRefererInterceptor( referer ) );
+            httpClientBuilder.addInterceptorLast( makeRequestRefererInterceptor( referer ) );
+        }
+        if ( LOGGER.isDebugEnabled() )
+        {
+            httpClientBuilder.addInterceptorFirst( makeRequestPayloadLogger() );
+            httpClientBuilder.addInterceptorFirst( makeResponsePayloadLogger() );
         }
 
         return httpClientBuilder.build();
     }
 
 
-    private static class RequestRefererInterceptor implements HttpRequestInterceptor
+    private HttpRequestInterceptor makeRequestRefererInterceptor( String referer )
     {
-        private final String referer;
-
-
-        RequestRefererInterceptor( String referer )
+        return new HttpRequestInterceptor()
         {
-            this.referer = referer;
-        }
+            @Override
+            public void process( HttpRequest request, HttpContext context ) throws HttpException, IOException
+            {
+                request.addHeader( HttpHeaders.REFERER, referer );
+            }
+        };
+    }
 
 
-        @Override
-        public void process( HttpRequest hr, HttpContext hc ) throws HttpException, IOException
+    private HttpRequestInterceptor makeRequestPayloadLogger()
+    {
+        return new HttpRequestInterceptor()
         {
-            hr.addHeader( HttpHeaders.REFERER, referer );
-        }
+            @Override
+            public void process( HttpRequest request, HttpContext context ) throws HttpException, IOException
+            {
+                LOGGER.debug( "===> {}", request.getRequestLine() );
+            }
+        };
+    }
+
+
+    private HttpResponseInterceptor makeResponsePayloadLogger()
+    {
+        return new HttpResponseInterceptor()
+        {
+            @Override
+            public void process( HttpResponse response, HttpContext context ) throws HttpException, IOException
+            {
+                LOGGER.debug( "<=== {}", response.getStatusLine() );
+            }
+        };
     }
 
 

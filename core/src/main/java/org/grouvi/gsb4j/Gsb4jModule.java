@@ -92,7 +92,7 @@ public class Gsb4jModule extends AbstractModule
     Gson makeGson( EnumTypeAdapterFactory factory )
     {
         return new GsonBuilder()
-                .setFieldNamingPolicy( FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES )
+                .setFieldNamingPolicy( FieldNamingPolicy.IDENTITY )
                 .registerTypeAdapterFactory( factory )
                 .create();
     }

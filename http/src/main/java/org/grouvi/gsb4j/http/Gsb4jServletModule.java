@@ -48,7 +48,7 @@ class Gsb4jServletModule extends ServletModule
     Gson makeGson()
     {
         return new GsonBuilder()
-                .setFieldNamingPolicy( FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES )
+                .setFieldNamingPolicy( FieldNamingPolicy.IDENTITY )
                 .create();
     }
 }

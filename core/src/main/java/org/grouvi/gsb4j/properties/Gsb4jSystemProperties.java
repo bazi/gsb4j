@@ -20,6 +20,8 @@ package org.grouvi.gsb4j.properties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.google.inject.ProvisionException;
+
 
 /**
  * Implementation of {@link Gsb4jProperties} which uses system properties as the source for values.
@@ -28,6 +30,14 @@ import java.nio.file.Paths;
  */
 class Gsb4jSystemProperties implements Gsb4jProperties
 {
+    public Gsb4jSystemProperties()
+    {
+        if ( getApiKey() == null )
+        {
+            throw new ProvisionException( "API key not supplied" );
+        }
+    }
+
 
     @Override
     public String getApiKey()

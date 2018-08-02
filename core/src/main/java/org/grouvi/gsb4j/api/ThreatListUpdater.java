@@ -78,14 +78,8 @@ class ThreatListUpdater extends SafeBrowsingApiBase
             LOGGER.info( "Update request skipped due to minimum wait duration." );
             return;
         }
-        LOGGER.info( "Starting list update..." );
 
-        Constraints constraints = new Constraints();
-        constraints.setRegion( "US" );
-        constraints.setSupportedCompressions( new CompressionType[]
-        {
-            CompressionType.RAW
-        } );
+        LOGGER.info( "Starting list update..." );
 
         Collection<ThreatListDescriptor> descriptors = descriptorsCache.getRefreshed();
         if ( descriptors.isEmpty() )
@@ -94,23 +88,7 @@ class ThreatListUpdater extends SafeBrowsingApiBase
             return;
         }
 
-        List<ListUpdateRequest> updateRequests = new ArrayList<>( descriptors.size() );
-
-        Iterator<ThreatListDescriptor> it = descriptors.stream()
-                .filter( d -> d.getThreatEntryType() == ThreatEntryType.URL ).iterator();
-        while ( it.hasNext() )
-        {
-            ThreatListDescriptor descriptor = it.next();
-
-            ListUpdateRequest req = new ListUpdateRequest();
-            req.setThreatType( descriptor.getThreatType() );
-            req.setPlatformType( descriptor.getPlatformType() );
-            req.setThreatEntryType( descriptor.getThreatEntryType() );
-            req.setState( stateHolder.getState( descriptor ) );
-            req.setConstraints( constraints );
-            updateRequests.add( req );
-        }
-
+        List<ListUpdateRequest> updateRequests = makeListUpdateRequests( descriptors );
         Map<String, Object> payload = wrapPayload( "listUpdateRequests", updateRequests );
         HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "threatListUpdates:fetch", payload );
 
@@ -125,9 +103,9 @@ class ThreatListUpdater extends SafeBrowsingApiBase
             if ( apiResp.listUpdateResponses != null )
             {
                 int successful = updateResponseHandler.apply( apiResp.listUpdateResponses );
+                int total = apiResp.listUpdateResponses.size();
 
-                LOGGER.info( "{} of {} updates successfully applied to local database", successful,
-                             apiResp.listUpdateResponses.size() );
+                LOGGER.info( "{} of {} updates successfully applied to local database", successful, total );
                 LOGGER.info( "=========================================================" );
             }
         }
@@ -146,6 +124,42 @@ class ThreatListUpdater extends SafeBrowsingApiBase
     Logger getLogger()
     {
         return LOGGER;
+    }
+
+
+    private List<ListUpdateRequest> makeListUpdateRequests( Collection<ThreatListDescriptor> descriptors )
+    {
+        Constraints constraints = makeConstraints();
+        List<ListUpdateRequest> updateRequests = new ArrayList<>( descriptors.size() );
+
+        Iterator<ThreatListDescriptor> it = descriptors.stream()
+                .filter( d -> d.getThreatEntryType() == ThreatEntryType.URL ).iterator();
+        while ( it.hasNext() )
+        {
+            ThreatListDescriptor descriptor = it.next();
+
+            ListUpdateRequest req = new ListUpdateRequest();
+            req.setThreatType( descriptor.getThreatType() );
+            req.setPlatformType( descriptor.getPlatformType() );
+            req.setThreatEntryType( descriptor.getThreatEntryType() );
+            req.setState( stateHolder.getState( descriptor ) );
+            req.setConstraints( constraints );
+            updateRequests.add( req );
+        }
+        return updateRequests;
+    }
+
+
+    private Constraints makeConstraints()
+    {
+        Constraints constraints = new Constraints();
+        constraints.setRegion( "US" );
+        constraints.setSupportedCompressions( new CompressionType[]
+        {
+            CompressionType.RAW
+        } );
+        // NOTE: here we do not set max__Entries fields, hence they are serialized with default 0 value - it works!
+        return constraints;
     }
 
 

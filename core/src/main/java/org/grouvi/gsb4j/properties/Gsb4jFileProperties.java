@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.grouvi.gsb4j.Gsb4jConst;
 
 import com.google.inject.Inject;
+import com.google.inject.ProvisionException;
 import com.google.inject.name.Named;
 
 
@@ -37,6 +38,15 @@ class Gsb4jFileProperties implements Gsb4jProperties
     @Inject
     @Named( Gsb4jConst.GSB4J )
     Properties properties;
+
+
+    public Gsb4jFileProperties()
+    {
+        if ( !properties.containsKey( API_KEY ) )
+        {
+            throw new ProvisionException( "API key not supplied" );
+        }
+    }
 
 
     @Override

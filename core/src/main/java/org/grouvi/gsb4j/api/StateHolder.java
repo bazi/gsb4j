@@ -50,16 +50,16 @@ class StateHolder
     private static final String FIND_MIN_WAIT_DURATION__KEY = "find_min_wait_duration";
     private static final String FIND_MIN_WAIT_TIMESTAMP_KEY = "find_min_wait_timestamp";
 
-    @Inject
-    private Gsb4jProperties sbProperties;
-
+    private final Gsb4jProperties properties;
     private final Properties states = new Properties();
 
 
     @Inject
-    public StateHolder( Gsb4jProperties sbProperties )
+    public StateHolder( Gsb4jProperties properties )
     {
-        File file = getStatesFile( sbProperties.getDataDirectory() );
+        this.properties = properties;
+
+        File file = getStatesFile( properties.getDataDirectory() );
         if ( file.exists() )
         {
             try ( InputStream is = new FileInputStream( file ) )
@@ -212,7 +212,7 @@ class StateHolder
 
     private synchronized void dumpToFile() throws IOException
     {
-        File file = getStatesFile( sbProperties.getDataDirectory() );
+        File file = getStatesFile( properties.getDataDirectory() );
         try ( OutputStream os = new FileOutputStream( file ) )
         {
             states.store( os, "" );
