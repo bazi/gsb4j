@@ -20,10 +20,8 @@ package org.grouvi.gsb4j.api;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.grouvi.gsb4j.Gsb4j;
 import org.grouvi.gsb4j.data.ThreatMatch;
-import org.grouvi.gsb4j.util.Gsb4jUtils;
-
-import com.google.inject.Inject;
 
 
 /**
@@ -33,9 +31,6 @@ import com.google.inject.Inject;
  */
 abstract class ApiResponseCacheBase implements Runnable
 {
-    @Inject
-    Gsb4jUtils gsb4jUtils;
-
 
     final void startMe( ScheduledExecutorService scheduler, long initialDelay, long delay, TimeUnit unit )
     {
@@ -52,7 +47,7 @@ abstract class ApiResponseCacheBase implements Runnable
     boolean isExpired( ThreatMatch match )
     {
         String duration = match.getCacheDuration();
-        return match.getTimestamp() + gsb4jUtils.durationToMillis( duration ) < System.currentTimeMillis();
+        return match.getTimestamp() + Gsb4j.durationToMillis( duration ) < System.currentTimeMillis();
     }
 }
 

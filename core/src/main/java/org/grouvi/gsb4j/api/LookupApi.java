@@ -50,13 +50,6 @@ class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi
 
 
     @Override
-    public boolean isLookupApi()
-    {
-        return true;
-    }
-
-
-    @Override
     public ThreatMatch check( String url )
     {
         ThreatMatch cached = cache.get( url );

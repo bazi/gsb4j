@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 import org.grouvi.gsb4j.cache.ThreatListDescriptorsCache;
 import org.grouvi.gsb4j.data.ThreatEntry;
 import org.grouvi.gsb4j.data.ThreatInfo;
@@ -39,7 +39,6 @@ import org.grouvi.gsb4j.db.LocalDatabase;
 import org.grouvi.gsb4j.url.Canonicalization;
 import org.grouvi.gsb4j.url.Hashing;
 import org.grouvi.gsb4j.url.SuffixPrefixExpressions;
-import org.grouvi.gsb4j.util.Gsb4jUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,21 +80,11 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
     private UpdateApiCache cache;
 
     @Inject
-    private Gsb4jUtils gsb4jUtils;
-
-    @Inject
     private StateHolder stateHolder;
 
     @Inject
-    @Named( Gsb4jConst.GSB4J )
+    @Named( Gsb4j.GSB4J )
     private ScheduledExecutorService executor;
-
-
-    @Override
-    public boolean isLookupApi()
-    {
-        return false;
-    }
 
 
     @Override
@@ -145,7 +134,7 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
                 threats.add( match );
             }
         }
-        // if there are unexpired positive cache entries we unsafe URL
+        // if there are unexpired positive cache entries, then it is unsafe URL
         if ( !threats.isEmpty() )
         {
             LOGGER.info( "Unexpired positive cache hit found" );
@@ -307,19 +296,19 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
                 }
                 else if ( apiResponse.negativeCacheDuration != null )
                 {
-                    long duration = gsb4jUtils.durationToMillis( apiResponse.negativeCacheDuration );
+                    long duration = Gsb4j.durationToMillis( apiResponse.negativeCacheDuration );
                     cache.putNegative( hexFull, duration );
                 }
             }
 
-            LOGGER.info( "Response to full hash request:{}", gson.toJson( matches ) );
+            LOGGER.info( "Response to full hash request: {}", gson.toJson( matches ) );
             return matches;
         }
         finally
         {
             if ( apiResponse.minimumWaitDuration != null )
             {
-                long duration = gsb4jUtils.durationToMillis( apiResponse.minimumWaitDuration );
+                long duration = Gsb4j.durationToMillis( apiResponse.minimumWaitDuration );
                 stateHolder.setMinWaitDurationForFinds( duration );
             }
         }

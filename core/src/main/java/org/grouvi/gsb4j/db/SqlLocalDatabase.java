@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sql.DataSource;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 import org.grouvi.gsb4j.data.ThreatListDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ class SqlLocalDatabase implements LocalDatabase
     final int BATCH_SIZE = 50 * 1000;
 
     @Inject
-    @Named( Gsb4jConst.GSB4J )
+    @Named( Gsb4j.GSB4J )
     DataSource dataSource;
 
 

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 import org.grouvi.gsb4j.properties.Gsb4jProperties;
 import org.sqlite.JDBC;
 
@@ -63,7 +63,7 @@ class SqlConnectionProvider implements Provider<DataSource>
 
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl( JDBC.PREFIX + dataDir.resolve( "local.db" ) );
-        config.setPoolName( Gsb4jConst.GSB4J );
+        config.setPoolName( Gsb4j.GSB4J );
         config.setAutoCommit( false );
         config.setConnectionTimeout( TimeUnit.SECONDS.toMillis( 20 ) );
         config.setIdleTimeout( TimeUnit.MINUTES.toMillis( 10 ) );

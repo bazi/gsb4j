@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ class ThreatListUpdateRunner implements Runnable
 
 
     @Inject
-    public ThreatListUpdateRunner( @Named( Gsb4jConst.GSB4J ) ScheduledExecutorService scheduler )
+    public ThreatListUpdateRunner( @Named( Gsb4j.GSB4J ) ScheduledExecutorService scheduler )
     {
         startMe( scheduler );
     }
@@ -66,7 +66,7 @@ class ThreatListUpdateRunner implements Runnable
 
     private void startMe( ScheduledExecutorService scheduler )
     {
-        scheduler.scheduleWithFixedDelay( this, 10, 600, TimeUnit.SECONDS );
+        scheduler.scheduleWithFixedDelay( this, 5, 600, TimeUnit.SECONDS );
     }
 
 }

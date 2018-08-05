@@ -20,7 +20,7 @@ package org.grouvi.gsb4j.properties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 
 
 /**
@@ -68,7 +68,7 @@ public interface Gsb4jProperties
     static Path getDefaultDataDirectory()
     {
         String homeDir = System.getProperty( "user.home" );
-        return Paths.get( homeDir, Gsb4jConst.GSB4J );
+        return Paths.get( homeDir, Gsb4j.GSB4J );
     }
 
 }

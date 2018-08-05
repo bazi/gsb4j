@@ -23,6 +23,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.grouvi.gsb4j.data.ThreatListDescriptor;
@@ -64,58 +66,34 @@ class UpdateResponseHandler
      * Applies list updates to local database.
      *
      * @param updateResponses list updates
+     * @return number of list updates successfully updated and applied to local database
      * @throws IOException when database read/write errors occur
      */
     public int apply( List<ListUpdateResponse> updateResponses ) throws IOException
     {
-        int successful = 0;
+        AtomicInteger counter = new AtomicInteger();
         for ( ListUpdateResponse updateResponse : updateResponses )
         {
-            List<String> hashes;
+            ThreatListDescriptor descriptor = makeDescriptor( updateResponse );
             if ( updateResponse.getResponseType() == ListUpdateResponse.ResponseType.FULL_UPDATE )
             {
-                LOGGER.info( "===== Applying FULL update =====" );
-                hashes = doFullUpdate( updateResponse );
+                LOGGER.info( "===== Applying FULL update for {} =====", descriptor );
+                List<String> updatedHashes = doFullUpdate( updateResponse );
+                verifyAndSave( updatedHashes, updateResponse, counter );
             }
             else if ( updateResponse.getResponseType() == ListUpdateResponse.ResponseType.PARTIAL_UPDATE )
             {
-                LOGGER.info( "===== Applying PARTIAL update =====" );
-                hashes = doPartialUpdate( updateResponse );
+                LOGGER.info( "===== Applying PARTIAL update for {} =====", descriptor );
+                List<String> updatedHashes = doPartialUpdate( updateResponse );
+                verifyAndSave( updatedHashes, updateResponse, counter );
             }
             else
             {
                 LOGGER.warn( "Unknown response type: {}", updateResponse.getResponseType() );
-                continue;
-            }
-
-            if ( !hashes.isEmpty() )
-            {
-                ThreatListDescriptor descriptor = makeDescriptor( updateResponse );
-                boolean verified = sortAndVerify( hashes, updateResponse.getChecksum() );
-                if ( verified )
-                {
-                    LOGGER.info( "Client state SUCCESSFULLY verified for {}", descriptor );
-                    localDatabase.clear( descriptor );
-                    localDatabase.persist( descriptor, hashes );
-                    stateHolder.setState( descriptor, updateResponse.getNewClientState() );
-                    successful++;
-                }
-                else
-                {
-                    LOGGER.info( "FAILED to verify client state for {}", descriptor );
-                    // protocol says to clean local database and send update request again
-                    // but we keep local database until next successful update
-                    stateHolder.setState( descriptor, null );
-                }
-            }
-            else
-            {
-                LOGGER.info( "No changes applied. Skipping." );
-                successful++;
             }
             LOGGER.info( "" );
         }
-        return successful;
+        return counter.get();
     }
 
 
@@ -128,9 +106,10 @@ class UpdateResponseHandler
      */
     private List<String> doPartialUpdate( ListUpdateResponse updateResponse ) throws IOException
     {
-        boolean noRemovals = updateResponse.getRemovals() == null || updateResponse.getRemovals().isEmpty();
-        boolean noAdditions = updateResponse.getAdditions() == null || updateResponse.getAdditions().isEmpty();
-        if ( noRemovals && noAdditions )
+        final List<ThreatEntrySet> empty = Collections.emptyList();
+        List<ThreatEntrySet> removals = Optional.ofNullable( updateResponse.getRemovals() ).orElse( empty );
+        List<ThreatEntrySet> additions = Optional.ofNullable( updateResponse.getAdditions() ).orElse( empty );
+        if ( removals.isEmpty() && additions.isEmpty() )
         {
             return Collections.emptyList();
         }
@@ -138,32 +117,26 @@ class UpdateResponseHandler
         ThreatListDescriptor descriptor = makeDescriptor( updateResponse );
         List<String> hashes = localDatabase.load( descriptor );
 
-        if ( !noRemovals )
+        for ( ThreatEntrySet removal : removals )
         {
-            for ( ThreatEntrySet removal : updateResponse.getRemovals() )
+            if ( removal.getCompressionType() == CompressionType.RICE && removal.getRiceIndices() != null )
             {
-                if ( removal.getCompressionType() == CompressionType.RICE && removal.getRiceIndices() != null )
-                {
-                    removeItemsByRiceIndices( removal.getRiceIndices(), hashes );
-                }
-                else if ( removal.getCompressionType() == CompressionType.RAW && removal.getRawIndices() != null )
-                {
-                    removeItemsByRawIndices( removal.getRawIndices().getIndices(), hashes );
-                }
+                removeItemsByRiceIndices( removal.getRiceIndices(), hashes );
+            }
+            else if ( removal.getCompressionType() == CompressionType.RAW && removal.getRawIndices() != null )
+            {
+                removeItemsByRawIndices( removal.getRawIndices().getIndices(), hashes );
             }
         }
-        if ( !noAdditions )
+        for ( ThreatEntrySet addition : additions )
         {
-            for ( ThreatEntrySet addition : updateResponse.getAdditions() )
+            if ( addition.getCompressionType() == CompressionType.RICE && addition.getRiceHashes() != null )
             {
-                if ( addition.getCompressionType() == CompressionType.RICE && addition.getRiceHashes() != null )
-                {
-                    addItemsByRiceHashes( addition.getRiceHashes(), hashes );
-                }
-                else if ( addition.getCompressionType() == CompressionType.RAW && addition.getRawHashes() != null )
-                {
-                    addItemsByRawHashes( addition.getRawHashes(), hashes );
-                }
+                addItemsByRiceHashes( addition.getRiceHashes(), hashes );
+            }
+            else if ( addition.getCompressionType() == CompressionType.RAW && addition.getRawHashes() != null )
+            {
+                addItemsByRawHashes( addition.getRawHashes(), hashes );
             }
         }
         return hashes;
@@ -185,6 +158,36 @@ class UpdateResponseHandler
             }
         }
         return hashes;
+    }
+
+
+    private void verifyAndSave( List<String> hashes, ListUpdateResponse updateResponse, AtomicInteger counter ) throws IOException
+    {
+        if ( !hashes.isEmpty() )
+        {
+            ThreatListDescriptor descriptor = makeDescriptor( updateResponse );
+            boolean verified = sortAndVerify( hashes, updateResponse.getChecksum() );
+            if ( verified )
+            {
+                LOGGER.info( "Client state SUCCESSFULLY verified for {}", descriptor );
+                localDatabase.clear( descriptor );
+                localDatabase.persist( descriptor, hashes );
+                stateHolder.setState( descriptor, updateResponse.getNewClientState() );
+                counter.incrementAndGet();
+            }
+            else
+            {
+                LOGGER.info( "FAILED to verify client state for {}", descriptor );
+                // protocol says to clean local database and send update request again
+                // but we keep local database until next successful update
+                stateHolder.setState( descriptor, null );
+            }
+        }
+        else
+        {
+            LOGGER.info( "No changes applied. Skipping." );
+            counter.incrementAndGet();
+        }
     }
 
 

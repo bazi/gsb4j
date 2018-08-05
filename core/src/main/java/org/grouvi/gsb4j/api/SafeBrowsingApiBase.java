@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 import org.grouvi.gsb4j.data.PlatformType;
 import org.grouvi.gsb4j.data.ThreatMatch;
 import org.grouvi.gsb4j.properties.Gsb4jClientInfo;
@@ -52,21 +52,27 @@ import com.google.inject.name.Named;
 abstract class SafeBrowsingApiBase
 {
     @Inject
-    @Named( value = Gsb4jConst.GSB4J )
+    @Named( value = Gsb4j.GSB4J )
     CloseableHttpClient httpClient;
 
     @Inject
     Gsb4jClientInfo clientInfo;
 
     @Inject
-    Gsb4jProperties gsb4jProperties;
-
-    @Inject
-    @Named( value = Gsb4jConst.GSB4J )
+    @Named( value = Gsb4j.GSB4J )
     Gson gson;
+
+    private String apiKey;
 
 
     abstract Logger getLogger();
+
+
+    @Inject
+    void setApiKey( Gsb4jProperties properties )
+    {
+        apiKey = properties.getApiKey();
+    }
 
 
     /**
@@ -76,7 +82,7 @@ abstract class SafeBrowsingApiBase
      * @param matches list of matches to select from; should not be empty
      * @return a match that has more generic impact; or first one if there is no such a threat
      */
-    protected ThreatMatch selectMoreGenericThreat( List<ThreatMatch> matches )
+    ThreatMatch selectMoreGenericThreat( List<ThreatMatch> matches )
     {
         if ( matches.size() > 1 )
         {
@@ -117,8 +123,8 @@ abstract class SafeBrowsingApiBase
     HttpUriRequest makeRequest( String httpMethod, String endpoint, Object payload )
     {
         RequestBuilder builder = RequestBuilder.create( httpMethod )
-                .setUri( Gsb4jConst.API_BASE_URL + endpoint )
-                .addParameter( "key", gsb4jProperties.getApiKey() )
+                .setUri( Gsb4j.API_BASE_URL + endpoint )
+                .addParameter( "key", apiKey )
                 .setHeader( HttpHeaders.CONTENT_TYPE, "application/json" );
 
         if ( payload != null )

@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.grouvi.gsb4j.api.ThreatListGetter;
 import org.grouvi.gsb4j.data.ThreatListDescriptor;
@@ -43,6 +46,7 @@ public class ThreatListDescriptorsCache
     private Provider<ThreatListGetter> threatListGetterProvider;
 
     private final Set<ThreatListDescriptor> cache = new HashSet<>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
 
     /**
@@ -52,11 +56,20 @@ public class ThreatListDescriptorsCache
      */
     public Collection<ThreatListDescriptor> get()
     {
-        if ( cache.isEmpty() )
+        Lock readLock = lock.readLock();
+        readLock.lock();
+        try
         {
-            return getRefreshed();
+            if ( !cache.isEmpty() )
+            {
+                return Collections.unmodifiableCollection( cache );
+            }
         }
-        return Collections.unmodifiableCollection( cache );
+        finally
+        {
+            readLock.unlock();
+        }
+        return getRefreshed();
     }
 
 
@@ -67,10 +80,19 @@ public class ThreatListDescriptorsCache
      */
     public Collection<ThreatListDescriptor> getRefreshed()
     {
-        List<ThreatListDescriptor> ls = threatListGetterProvider.get().getLists();
-        synchronized ( this )
+        ThreatListGetter threatListGetter = threatListGetterProvider.get();
+        List<ThreatListDescriptor> ls = threatListGetter.getLists();
+
+        Lock writeLock = lock.writeLock();
+        writeLock.lock();
+        try
         {
+            cache.clear();
             cache.addAll( ls );
+        }
+        finally
+        {
+            writeLock.unlock();
         }
         return Collections.unmodifiableCollection( cache );
     }

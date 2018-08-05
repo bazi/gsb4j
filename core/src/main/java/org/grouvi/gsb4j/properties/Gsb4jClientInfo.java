@@ -29,7 +29,7 @@ import com.google.inject.Singleton;
 
 /**
  * Information about Google Safe Browsing API client implementation. Client info should uniquely identify a client
- * implementation, not an individual user.
+ * implementation, not an individual user. This class provides client info using project group id and version values.
  *
  * @author <a href="https://github.com/bazi">bazi</a>
  */

@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 
 import com.google.inject.Inject;
 import com.google.inject.ProvisionException;
@@ -36,7 +36,7 @@ import com.google.inject.name.Named;
 class Gsb4jFileProperties implements Gsb4jProperties
 {
     @Inject
-    @Named( Gsb4jConst.GSB4J )
+    @Named( Gsb4j.GSB4J )
     Properties properties;
 
 

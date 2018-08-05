@@ -24,9 +24,9 @@ import java.nio.charset.StandardCharsets;
 
 
 /**
- * Simple percent encoding class. Percent encoding is basically a URL encoding that is performed by {@link URLEncoder}
- * with the exception of space character which is encoded as "+" according to "application/x-www-form-urlencoded" specs.
- * This class encodes spaces to "%20". TODO:
+ * Simple percent encoding class. This percent encoding is basically a URL encoding that is performed by
+ * {@link URLEncoder} with the exception of space character. Spaces are represented using "+" in
+ * "application/x-www-form-urlencoded" specs, whereas this class represents spaces using "%20".
  *
  * @author azilet
  */

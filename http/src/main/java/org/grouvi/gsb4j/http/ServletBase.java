@@ -60,7 +60,7 @@ abstract class ServletBase extends HttpServlet
             writeResponse( HttpServletResponse.SC_BAD_REQUEST, "No URL to check", resp );
             return;
         }
-        getLogger().info( "Checking safe browsing: {}", url );
+        getLogger().info( "Checking URL: {}", url );
 
         SafeBrowsingApi api = getSafeBrowsingApi();
         ThreatMatch threat = api.check( url );

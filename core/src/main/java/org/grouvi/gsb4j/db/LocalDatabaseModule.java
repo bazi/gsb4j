@@ -18,7 +18,7 @@ package org.grouvi.gsb4j.db;
 
 import javax.sql.DataSource;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
@@ -26,6 +26,9 @@ import com.google.inject.name.Names;
 
 /**
  * Guice module to initialize database related bindings.
+ * <p>
+ * This module is not supposed to be used directly! To bootstrap, consider bootstrap methods in {@link Gsb4j} or methods
+ * that return list of all necessary modules.
  *
  * @author azilet
  */
@@ -36,7 +39,7 @@ public class LocalDatabaseModule extends AbstractModule
     {
         bind( LocalDatabase.class ).to( SqlLocalDatabase.class );
 
-        bind( DataSource.class ).annotatedWith( Names.named( Gsb4jConst.GSB4J ) )
+        bind( DataSource.class ).annotatedWith( Names.named( Gsb4j.GSB4J ) )
                 .toProvider( SqlConnectionProvider.class ).asEagerSingleton();
     }
 }

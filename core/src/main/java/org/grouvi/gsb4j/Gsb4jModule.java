@@ -17,13 +17,8 @@
 package org.grouvi.gsb4j;
 
 
-import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import org.grouvi.gsb4j.api.SafeBrowsingApiModule;
-import org.grouvi.gsb4j.db.LocalDatabaseModule;
-import org.grouvi.gsb4j.properties.Gsb4jPropertiesModule;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 
@@ -38,56 +33,28 @@ import com.google.inject.name.Names;
 
 
 /**
- * Guice module for Gsb4j - Google Safe Browsing API client implementation. This is the main module to bootstrap gsb4j
- * bindings.
+ * Guice module to initialize common bindings used Gsb4j.
+ * <p>
+ * This module is not supposed to be used directly! To bootstrap, consider bootstrap methods in {@link Gsb4j} or methods
+ * that return list of all necessary modules.
  *
  * @author azilet
  */
 public class Gsb4jModule extends AbstractModule
 {
 
-    private final Path propertiesFile;
-
-
-    /**
-     * Default constructor. Using this constructor implies that external configurations are performed through system
-     * properties.
-     *
-     * @see #Gsb4jModule(java.nio.file.Path)
-     */
-    public Gsb4jModule()
-    {
-        this.propertiesFile = null;
-    }
-
-
-    /**
-     * Constructor with properties file.
-     *
-     * @param propertiesFile path to properties file
-     */
-    public Gsb4jModule( Path propertiesFile )
-    {
-        this.propertiesFile = propertiesFile;
-    }
-
-
     @Override
     protected void configure()
     {
         bind( CloseableHttpClient.class )
-                .annotatedWith( Names.named( Gsb4jConst.GSB4J ) )
+                .annotatedWith( Names.named( Gsb4j.GSB4J ) )
                 .toProvider( HttpClientProvider.class )
                 .asEagerSingleton();
-
-        install( new Gsb4jPropertiesModule().setPropertiesFile( propertiesFile ) );
-        install( new LocalDatabaseModule() );
-        install( new SafeBrowsingApiModule() );
     }
 
 
     @Provides
-    @Named( Gsb4jConst.GSB4J )
+    @Named( Gsb4j.GSB4J )
     @Singleton
     Gson makeGson( EnumTypeAdapterFactory factory )
     {
@@ -99,7 +66,7 @@ public class Gsb4jModule extends AbstractModule
 
 
     @Provides
-    @Named( Gsb4jConst.GSB4J )
+    @Named( Gsb4j.GSB4J )
     @Singleton
     ScheduledExecutorService makeScheduler()
     {

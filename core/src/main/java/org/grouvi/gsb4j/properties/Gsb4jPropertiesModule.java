@@ -17,39 +17,37 @@
 package org.grouvi.gsb4j.properties;
 
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.Properties;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
 
 
 /**
  * Guice module to initialize bindings related to gsb4j properties.
+ * <p>
+ * This module is not supposed to be used directly! To bootstrap, consider bootstrap methods in {@link Gsb4j} or methods
+ * that return list of all necessary modules.
  *
  * @author <a href="https://github.com/bazi">bazi</a>
  */
 public class Gsb4jPropertiesModule extends AbstractModule
 {
 
-    private Path propertiesFile;
+    private Properties properties;
 
 
     /**
-     * Sets path to properties file.
+     * Sets properties instance to use as a source of values.
      *
-     * @param propertiesFile path to properties file; may be {@code null}
+     * @param properties properties instance
      * @return this class for chained setup
      */
-    public Gsb4jPropertiesModule setPropertiesFile( Path propertiesFile )
+    public Gsb4jPropertiesModule setPropertiesFile( Properties properties )
     {
-        this.propertiesFile = propertiesFile;
+        this.properties = properties;
         return this;
     }
 
@@ -57,10 +55,9 @@ public class Gsb4jPropertiesModule extends AbstractModule
     @Override
     protected void configure()
     {
-        if ( propertiesFile != null )
+        if ( properties != null )
         {
-            Properties prop = readProperties( propertiesFile );
-            bind( Properties.class ).annotatedWith( Names.named( Gsb4jConst.GSB4J ) ).toInstance( prop );
+            bind( Properties.class ).annotatedWith( Names.named( Gsb4j.GSB4J ) ).toInstance( properties );
             bind( Gsb4jProperties.class ).to( Gsb4jFileProperties.class );
         }
         else
@@ -69,20 +66,6 @@ public class Gsb4jPropertiesModule extends AbstractModule
         }
     }
 
-
-    private Properties readProperties( Path propertiesFile )
-    {
-        try ( InputStream is = new FileInputStream( propertiesFile.toFile() ) )
-        {
-            Properties prop = new Properties();
-            prop.load( is );
-            return prop;
-        }
-        catch ( IOException ex )
-        {
-            throw new ProvisionException( "Failed to read properties file", ex );
-        }
-    }
 
 }
 

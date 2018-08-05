@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.grouvi.gsb4j.Gsb4j;
 import org.grouvi.gsb4j.cache.ThreatListDescriptorsCache;
 import org.grouvi.gsb4j.data.ThreatEntryType;
 import org.grouvi.gsb4j.data.ThreatListDescriptor;
@@ -33,7 +34,6 @@ import org.grouvi.gsb4j.data.updates.CompressionType;
 import org.grouvi.gsb4j.data.updates.Constraints;
 import org.grouvi.gsb4j.data.updates.ListUpdateRequest;
 import org.grouvi.gsb4j.data.updates.ListUpdateResponse;
-import org.grouvi.gsb4j.util.Gsb4jUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +58,6 @@ class ThreatListUpdater extends SafeBrowsingApiBase
 
     @Inject
     private UpdateResponseHandler updateResponseHandler;
-
-    @Inject
-    private Gsb4jUtils gsb4jUtils;
 
     @Inject
     private ThreatListDescriptorsCache descriptorsCache;
@@ -113,7 +110,7 @@ class ThreatListUpdater extends SafeBrowsingApiBase
         {
             if ( apiResp.minimumWaitDuration != null )
             {
-                long duration = gsb4jUtils.durationToMillis( apiResp.minimumWaitDuration );
+                long duration = Gsb4j.durationToMillis( apiResp.minimumWaitDuration );
                 stateHolder.setMinWaitDurationForUpdates( duration );
             }
         }

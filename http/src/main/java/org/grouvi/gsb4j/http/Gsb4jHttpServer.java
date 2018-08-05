@@ -17,7 +17,9 @@
 package org.grouvi.gsb4j.http;
 
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.servlet.DispatcherType;
 
@@ -26,8 +28,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.grouvi.gsb4j.Gsb4jModule;
-import org.grouvi.gsb4j.cache.ThreatListDescriptorsCache;
+import org.grouvi.gsb4j.Gsb4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +63,6 @@ public class Gsb4jHttpServer
         try
         {
             Injector injector = bootstrapDI();
-            init( injector );
-
             server = initServer( port, injector );
             server.start();
         }
@@ -79,20 +78,10 @@ public class Gsb4jHttpServer
 
     private static Injector bootstrapDI()
     {
-        Module[] modules = new Module[]
-        {
-            new Gsb4jModule(),
-            new Gsb4jServletModule()
-        };
+        List<Module> modules = new ArrayList<>();
+        modules.addAll( Gsb4j.getModules() );
+        modules.add( new Gsb4jServletModule() );
         return Guice.createInjector( Stage.PRODUCTION, modules );
-    }
-
-
-    private static void init( Injector injector )
-    {
-        // trigger eager retrieval of threat lists
-        ThreatListDescriptorsCache descriptorsCache = injector.getInstance( ThreatListDescriptorsCache.class );
-        descriptorsCache.get();
     }
 
 

@@ -21,7 +21,7 @@ import org.grouvi.gsb4j.data.ThreatMatch;
 
 
 /**
- * Sage Browsing API interface.
+ * Sage Browsing API interface. As of APIv4, two implementation are available: Lookup API and Update API.
  *
  * @author azilet
  */
@@ -37,15 +37,6 @@ public interface SafeBrowsingApi
      * Name to identify Update API client implementation.
      */
     String UPDATE_API = "update";
-
-
-    /**
-     * Identifies if this Safe Browsing API implementation is a Lookup API or an Update API.
-     *
-     * @return {@code true} if this is a Lookup API implementation; {@code false} if it is not, i.e. it is an Update API
-     * implementation
-     */
-    boolean isLookupApi();
 
 
     /**

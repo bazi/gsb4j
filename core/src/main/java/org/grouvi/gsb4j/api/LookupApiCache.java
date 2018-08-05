@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 import org.grouvi.gsb4j.data.ThreatMatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ class LookupApiCache extends ApiResponseCacheBase
 
 
     @Inject
-    LookupApiCache( @Named( Gsb4jConst.GSB4J ) ScheduledExecutorService scheduler )
+    LookupApiCache( @Named( Gsb4j.GSB4J ) ScheduledExecutorService scheduler )
     {
         startMe( scheduler, 10, 30, TimeUnit.SECONDS );
     }

@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.grouvi.gsb4j.Gsb4jConst;
+import org.grouvi.gsb4j.Gsb4j;
 import org.grouvi.gsb4j.data.ThreatMatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ class UpdateApiCache extends ApiResponseCacheBase
 
 
     @Inject
-    UpdateApiCache( @Named( Gsb4jConst.GSB4J ) ScheduledExecutorService scheduler )
+    UpdateApiCache( @Named( Gsb4j.GSB4J ) ScheduledExecutorService scheduler )
     {
         startMe( scheduler, 1, 3, TimeUnit.MINUTES );
     }
@@ -102,7 +102,7 @@ class UpdateApiCache extends ApiResponseCacheBase
      * Gets positive cache entry for the full hash.
      *
      * @param fullHash full hash to get positive threat match for
-     * @param expired indicates if cache entry shall be unexpired or expired
+     * @param expired indicates if selected cache entry shall be unexpired or expired
      * @return threat match if there is a positive cache entry for the full hash that matches {@code expired} parameter;
      * {@code null} otherwise
      */
