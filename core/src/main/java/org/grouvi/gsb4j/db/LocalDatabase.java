@@ -66,6 +66,7 @@ public interface LocalDatabase
      * Clears local database data for the descriptor.
      *
      * @param descriptor descriptor to clear data for
+     * @throws IOException when I/O errors occur
      */
     void clear( ThreatListDescriptor descriptor ) throws IOException;
 

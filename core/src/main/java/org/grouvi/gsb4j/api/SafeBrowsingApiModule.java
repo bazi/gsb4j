@@ -24,8 +24,8 @@ import com.google.inject.name.Names;
 /**
  * Guice module to initialize API specific bindings.
  * <p>
- * This module is not supposed to be used directly! To bootstrap, consider bootstrap methods in {@link Gsb4j} or methods
- * that return list of all necessary modules.
+ * This module is not supposed to be used directly! To bootstrap, consider bootstrap methods in
+ * {@link org.grouvi.gsb4j.Gsb4j} or methods that return list of all necessary modules.
  *
  * @author azilet
  */

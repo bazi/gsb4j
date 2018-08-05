@@ -132,7 +132,7 @@ class HttpClientProvider implements Provider<CloseableHttpClient>
 
 
     /**
-     * HTTP request interceptor that makes requests include accepted encodings like gzip.
+     * HTTP request interceptor that adds headers to requests indicating responses can be compressed using gzip.
      *
      * @author azilet
      */

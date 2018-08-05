@@ -109,7 +109,8 @@
                 <version>2.10.4</version>
                 <configuration>
                     <outputDirectory />
-                    <show>package</show>
+                    <show>protected</show>
+                    <bottom><![CDATA[Copyright © 2017–{currentYear}, <a href="https://github.com/bazi/gsb4j">Gsb4j<a>]]></bottom>
                 </configuration>
                 <executions>
                     <execution>

@@ -81,6 +81,7 @@ class StateHolder
     /**
      * Gets client state.
      *
+     * @param descriptor descriptor to get client state for
      * @return client state; empty string if client state is undefined
      */
     public String getState( ThreatListDescriptor descriptor )

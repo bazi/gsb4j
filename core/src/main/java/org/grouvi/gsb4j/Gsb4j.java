@@ -32,7 +32,7 @@ import com.google.inject.Stage;
 
 
 /**
- * Main entry-point to GSB4J application. Besides bootstrapping, this class is a place of application wide constant
+ * Main entry point to GSB4J application. Besides bootstrapping, this class is a place for application wide constant
  * values and utility methods.
  *
  * @author <a href="https://github.com/bazi">bazi</a>
@@ -41,9 +41,10 @@ public class Gsb4j
 {
     /**
      * Name to distinguish things that belong to Gsb4j. Specifically, it is used to name Guice bindings for types not
-     * specific to Gsb4j. For example, Gsb4j has its own binding to {@link ScheduledExecutorService} instance which is
-     * annotated with this name. This avoids possible conflicts when Gsb4j module is bootstrapped with other modules
-     * that have bindings to {@link ScheduledExecutorService} as well.
+     * specific to Gsb4j. For example, Gsb4j has its own binding of
+     * {@link java.util.concurrent.ScheduledExecutorService} instance which is annotated with this name. This avoids
+     * possible conflicts when Gsb4j module is bootstrapped together with other modules that have bindings to the same
+     * standard classes.
      */
     public static final String GSB4J = "gsb4j";
 
