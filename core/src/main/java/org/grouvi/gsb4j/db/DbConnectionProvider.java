@@ -40,13 +40,13 @@ import com.zaxxer.hikari.HikariDataSource;
  *
  * @author azilet
  */
-class SqlConnectionProvider implements Provider<DataSource>
+class DbConnectionProvider implements Provider<DataSource>
 {
     private DataSource dataSource;
 
 
     @Inject
-    SqlConnectionProvider( Gsb4jProperties properties )
+    DbConnectionProvider( Gsb4jProperties properties )
     {
         Path dataDir = properties.getDataDirectory();
         if ( !Files.exists( dataDir ) )

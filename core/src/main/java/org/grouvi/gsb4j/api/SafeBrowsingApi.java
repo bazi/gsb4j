@@ -17,11 +17,16 @@
 package org.grouvi.gsb4j.api;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.grouvi.gsb4j.data.ThreatMatch;
 
 
 /**
- * Sage Browsing API interface. As of APIv4, two implementation are available: Lookup API and Update API.
+ * Sage Browsing API interface.
+ * <p>
+ * As of APIv4, two implementations are available: Lookup API and Update API.
  *
  * @author azilet
  */
@@ -46,6 +51,21 @@ public interface SafeBrowsingApi
      * @return threat match if URL is found in one of threat lists; {@code null} otherwise which means URL is safe
      */
     ThreatMatch check( String url );
+
+
+    /**
+     * Gets a set of valid names representing various API implementations.
+     *
+     * @return set of implementation names
+     */
+    public static Set<String> getImplementationNames()
+    {
+        Set<String> set = new HashSet<>();
+        set.add( LOOKUP_API );
+        set.add( UPDATE_API );
+        return set;
+    }
+;
 
 
 }

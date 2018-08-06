@@ -40,7 +40,7 @@ public class LocalDatabaseModule extends AbstractModule
         bind( LocalDatabase.class ).to( SqlLocalDatabase.class );
 
         bind( DataSource.class ).annotatedWith( Names.named( Gsb4j.GSB4J ) )
-                .toProvider( SqlConnectionProvider.class ).asEagerSingleton();
+                .toProvider( DbConnectionProvider.class ).asEagerSingleton();
     }
 }
 

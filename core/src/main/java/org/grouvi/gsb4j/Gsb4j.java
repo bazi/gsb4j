@@ -17,18 +17,31 @@
 package org.grouvi.gsb4j;
 
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 
+import javax.sql.DataSource;
+
+import org.grouvi.gsb4j.api.SafeBrowsingApi;
 import org.grouvi.gsb4j.api.SafeBrowsingApiModule;
 import org.grouvi.gsb4j.db.LocalDatabaseModule;
 import org.grouvi.gsb4j.properties.Gsb4jPropertiesModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import com.google.inject.name.Names;
 
 
 /**
@@ -49,28 +62,47 @@ public class Gsb4j
     public static final String GSB4J = "gsb4j";
 
     /**
-     * Base URL for Google Safe Browsing API. Note that API requests have their own paths to be resolved on this base
-     * URL and so this URL has a trailing slash.
+     * Base URL for Google Safe Browsing API. Note that API requests have their own paths to be resolved relative to
+     * this base URL. This URL has a trailing slash.
      */
     public static final String API_BASE_URL = "https://safebrowsing.googleapis.com/v4/";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger( Gsb4j.class );
+    private static Injector injector;
 
-    private Gsb4j()
+
+    Gsb4j()
     {
-        // not to be constructed
+        // not to be constructed by users
+    }
+
+
+    /**
+     * Gets an instance of {@link Gsb4j} class. Instances of {@link Gsb4j} are used to get API implementations.
+     *
+     * @return {@link Gsb4j} instance
+     */
+    public static Gsb4j instance()
+    {
+        if ( injector == null )
+        {
+            throw new IllegalStateException( "Gsb4j shall be bootstrapped before asking instances." );
+        }
+        return injector.getInstance( Gsb4j.class );
     }
 
 
     /**
      * Bootstraps Gsb4j. Modules returned by {@link #getModules()} are used.
      *
-     * @return injector for the supplied set of modules
+     * @return {@link Gsb4j} instance
      * @see #bootstrap(java.util.Properties)
      */
-    public static Injector bootstrap()
+    public static Gsb4j bootstrap()
     {
         List<Module> modules = getModules();
-        return Guice.createInjector( Stage.PRODUCTION, modules );
+        injector = Guice.createInjector( Stage.PRODUCTION, modules );
+        return injector.getInstance( Gsb4j.class );
     }
 
 
@@ -78,13 +110,14 @@ public class Gsb4j
      * Bootstraps Gsb4j. Modules returned by {@link #getModules(java.util.Properties)} are used.
      *
      * @param properties properties to be used as a source of configuration
-     * @return injector for the supplied set of modules
+     * @return {@link Gsb4j} instance
      * @see #bootstrap()
      */
-    public static Injector bootstrap( Properties properties )
+    public static Gsb4j bootstrap( Properties properties )
     {
         List<Module> modules = getModules( properties );
-        return Guice.createInjector( Stage.PRODUCTION, modules );
+        injector = Guice.createInjector( Stage.PRODUCTION, modules );
+        return injector.getInstance( Gsb4j.class );
     }
 
 
@@ -141,5 +174,64 @@ public class Gsb4j
                 : 0;
         return Math.round( seconds * 1000 );
     }
+
+
+    /**
+     * Gets Safe Browsing API implementation instance.
+     *
+     * @param name name of the API implementation type, implementation names are defined as constants in
+     * {@link SafeBrowsingApi}
+     * @return API implementation instance
+     */
+    public SafeBrowsingApi getApiImplementation( String name )
+    {
+        Set<String> validNames = SafeBrowsingApi.getImplementationNames();
+        if ( !validNames.contains( name ) )
+        {
+            String names = String.join( ", ", validNames );
+            throw new IllegalArgumentException( "Invalid name for API impl: " + name + ". Valid names: " + names );
+        }
+        Key<SafeBrowsingApi> key = Key.get( SafeBrowsingApi.class, Names.named( name ) );
+        return injector.getInstance( key );
+    }
+
+
+    /**
+     * Shuts down Gsb4j. This method releases all resources related to Gsb4j.
+     */
+    public void shutdown()
+    {
+        // stop all scheduled tasks
+        Key<ScheduledExecutorService> scedulerKey = Key.get( ScheduledExecutorService.class, Names.named( GSB4J ) );
+        ScheduledExecutorService scheduler = injector.getInstance( scedulerKey );
+        scheduler.shutdown();
+
+        // cleanup HTTP client resources
+        Key<CloseableHttpClient> httpClientKey = Key.get( CloseableHttpClient.class, Names.named( GSB4J ) );
+        CloseableHttpClient httpClient = injector.getInstance( httpClientKey );
+        close( httpClient, "HTTP client" );
+
+        // close db connections
+        Key<DataSource> dataSourceKey = Key.get( DataSource.class, Names.named( GSB4J ) );
+        DataSource dataSource = injector.getInstance( dataSourceKey );
+        if ( dataSource instanceof Closeable )
+        {
+            close( ( Closeable ) dataSource, "DB pool" );
+        }
+    }
+
+
+    private void close( Closeable closeable, String objectType )
+    {
+        try
+        {
+            closeable.close();
+        }
+        catch ( IOException ex )
+        {
+            LOGGER.error( "Failed to close {}: {}", objectType, ex.getMessage() );
+        }
+    }
+
 }
 
