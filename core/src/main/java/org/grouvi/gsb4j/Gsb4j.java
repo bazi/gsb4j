@@ -177,13 +177,13 @@ public class Gsb4j
 
 
     /**
-     * Gets Safe Browsing API implementation instance.
+     * Gets Safe Browsing API client implementation instance.
      *
      * @param name name of the API implementation type, implementation names are defined as constants in
      * {@link SafeBrowsingApi}
      * @return API implementation instance
      */
-    public SafeBrowsingApi getApiImplementation( String name )
+    public SafeBrowsingApi getApiClient( String name )
     {
         Set<String> validNames = SafeBrowsingApi.getImplementationNames();
         if ( !validNames.contains( name ) )
