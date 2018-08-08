@@ -28,8 +28,11 @@
     <name>Gsb4j Http Proxy</name>
     <packaging>jar</packaging>
 
-    <build>
-        
+    <properties>
+        <maven.assembly.descriptor>src/main/resources/assembly.xml</maven.assembly.descriptor>
+    </properties>
+
+    <build>    
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -49,8 +52,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
         </plugins>
-
     </build>
 
     <dependencies>
@@ -64,6 +70,11 @@
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
         </dependency>
 
         <dependency>
