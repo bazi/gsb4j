@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.grouvi.gsb4j</groupId>
+        <groupId>kg.net.bazi.gsb4j</groupId>
         <artifactId>gsb4j-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>

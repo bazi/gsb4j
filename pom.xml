@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.grouvi.gsb4j</groupId>
+    <groupId>kg.net.bazi.gsb4j</groupId>
     <artifactId>gsb4j-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
