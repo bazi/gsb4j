@@ -17,9 +17,9 @@ TODO:
 You can use Gsb4j by including the following dependency declaration in your POM file:
 ```xml
 <dependency>
-    <groupId>${project.groupId}</groupId>
+    <groupId>kg.net.bazi.gsb4j</groupId>
     <artifactId>gsb4j-core</artifactId>
-    <version>${project.version}</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -77,7 +77,27 @@ Gsb4j gsb4j = Gsb4j.bootstrap( properties );
 ```
 
 ## HTTP Proxy
-TODO
+There is a ready HTTP proxy for Gsb4j. This is handy for those who want a quick run to see all things working.
+You can download a fat jar, launch it, and you are ready to check some URLs. Here is how to launch the jar
+and how to make use of Gsb4j through HTTP endpoint.
+
+Extract downloaded archive to your desired location:
+
+    tar xzf gsb4j-http-${version}-bundle.tgz -C /home/user1/test/
+
+Change current directory to the location where you extracted archive contents and launch jar file with your API key:
+
+    java -Dapi.key=AIza*******************************qwSg -jar gsb4j-http-${version}.jar 
+
+This will start up a web server on port 8080. Now you can send GET requests to `/gsb4j/api/lookup` or `/gsb4j/api/update`
+endpoints with parameter **url** which should be a URL you want to check against Google Safe Browsing API.
+Below is a sample request from command line:
+
+    curl http://localhost:8080/gsb4j/api/lookup?url=http://testsafebrowsing.appspot.com/apiv4/ANY_PLATFORM/MALWARE/URL/
+
+Please note that your URL supplied as a query parameter **must be URL-encoded** to avoid confusions. In the above example,
+URL is not encoded as *curl* takes care of it but ideally that URL should be encoded and supplied as
+`http%3A%2F%2Ftestsafebrowsing.appspot.com%2Fapiv4%2FANY_PLATFORM%2FMALWARE%2FURL%2F`.
 
 
 ## What's missing

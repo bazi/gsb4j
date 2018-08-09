@@ -40,7 +40,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.grouvi.gsb4j.http.Gsb4jHttpServer</mainClass>
+                            <mainClass>kg.net.bazi.gsb4j.http.Gsb4jHttpServer</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>${maven.deps.classpath}/</classpathPrefix>
                         </manifest>
