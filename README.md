@@ -4,7 +4,7 @@
 Gsb4j is a Java client implementation of [Google Safe Browsing](https://developers.google.com/safe-browsing/) API v4.
 It has both Lookup API and Update API implementations.
 
-## Requirements:
+### Requirements:
 - JDK 8
 - Maven
 
@@ -78,8 +78,8 @@ Gsb4j gsb4j = Gsb4j.bootstrap( properties );
 
 ## HTTP Proxy
 There is a ready HTTP proxy for Gsb4j. This is handy for those who want a quick run to see all things working.
-You can download a fat jar, launch it, and you are ready to check some URLs. Here is how to launch the jar
-and how to make use of Gsb4j through HTTP endpoint.
+You can download an archive, extract it, and launch right away - and you are ready to check URLs.
+Here is how to launch HTTP proxy and how to check URLs.
 
 Extract downloaded archive to your desired location:
 
@@ -99,6 +99,8 @@ Please note that your URL supplied as a query parameter **must be URL-encoded** 
 URL is not encoded as *curl* takes care of it but ideally that URL should be encoded and supplied as
 `http%3A%2F%2Ftestsafebrowsing.appspot.com%2Fapiv4%2FANY_PLATFORM%2FMALWARE%2FURL%2F`.
 
+More details on [wiki page](https://github.com/bazi/gsb4j/wiki/HTTP-Proxy).
+
 
 ## What's missing
 Gsb4j is more or less a complete implementation of the API v4. But there are some parts that are not supported.
@@ -110,3 +112,10 @@ Those parts do not influence the overall usability of the API but, nevertheless,
 - Rice compression of payloads ([doc reference](https://developers.google.com/safe-browsing/v4/compression))
 
 
+## Feedback
+Your feedbacks are welcome and appreciated. You can use discussion group
+to ask any kind of questions or to share your thoughts on various topics related to Gsb4j.
+This discussion group is a place for everything Gsb4j related.
+
+If you find any bugs or issues related to working of Gsb4j, then you should be creating 
+an issue here in Github.
