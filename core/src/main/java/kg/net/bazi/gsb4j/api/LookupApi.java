@@ -83,9 +83,12 @@ class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi
             ApiResponse apiResponse = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
             if ( apiResponse.matches != null && !apiResponse.matches.isEmpty() )
             {
-                ThreatMatch match = selectMoreGenericThreat( apiResponse.matches );
-                cache.put( match );
-                return match;
+                ThreatMatch match = selectMatch( url, apiResponse.matches );
+                if ( match != null )
+                {
+                    cache.put( match );
+                    return match;
+                }
             }
         }
         catch ( IOException ex )
@@ -101,6 +104,26 @@ class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         ThreatEntry e = new ThreatEntry();
         e.setUrl( url );
         return e;
+    }
+
+
+    /**
+     * Selects a threat match for the URL.
+     *
+     * @param url URL to select a match for
+     * @param matches list of threat matches
+     * @return threat match for the supplied URL if there is such a match; {@code null} otherwise
+     */
+    private ThreatMatch selectMatch( String url, List<ThreatMatch> matches )
+    {
+        for ( ThreatMatch match : matches )
+        {
+            if ( match.getThreat().getUrl().equals( url ) )
+            {
+                return match;
+            }
+        }
+        return null;
     }
 
 

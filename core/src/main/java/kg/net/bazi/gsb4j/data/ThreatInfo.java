@@ -16,9 +16,8 @@
 package kg.net.bazi.gsb4j.data;
 
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -32,7 +31,7 @@ public class ThreatInfo
     private Set<ThreatType> threatTypes = ThreatType.getAll();
     private Set<PlatformType> platformTypes = EnumSet.of( PlatformType.ANY_PLATFORM );
     private Set<ThreatEntryType> threatEntryTypes = EnumSet.of( ThreatEntryType.URL );
-    private List<ThreatEntry> threatEntries = new ArrayList<>( 4 );
+    private Set<ThreatEntry> threatEntries = new HashSet<>();
 
 
     public Set<ThreatType> getThreatTypes()
@@ -71,13 +70,13 @@ public class ThreatInfo
     }
 
 
-    public List<ThreatEntry> getThreatEntries()
+    public Set<ThreatEntry> getThreatEntries()
     {
         return threatEntries;
     }
 
 
-    public void setThreatEntries( List<ThreatEntry> threatEntries )
+    public void setThreatEntries( Set<ThreatEntry> threatEntries )
     {
         this.threatEntries = threatEntries;
     }

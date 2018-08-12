@@ -23,11 +23,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -38,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 import kg.net.bazi.gsb4j.Gsb4j;
 import kg.net.bazi.gsb4j.cache.ThreatListDescriptorsCache;
@@ -82,17 +83,13 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
     @Inject
     private StateHolder stateHolder;
 
-    @Inject
-    @Named( Gsb4j.GSB4J )
-    private ScheduledExecutorService executor;
-
 
     @Override
     public ThreatMatch check( String url )
     {
         try
         {
-            List<UrlHashCollision> collisions = findHashPrefixCollisions( url );
+            Set<UrlHashCollision> collisions = findHashPrefixCollisions( url );
             if ( !collisions.isEmpty() )
             {
                 List<ThreatMatch> threats = checkCollisions( collisions );
@@ -121,14 +118,14 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
     }
 
 
-    private List<ThreatMatch> checkCollisions( List<UrlHashCollision> collisions ) throws IOException, DecoderException
+    private List<ThreatMatch> checkCollisions( Set<UrlHashCollision> collisions ) throws IOException, DecoderException
     {
         List<ThreatMatch> threats = new ArrayList<>();
 
         // first, check for unexpired positive cache hits
         for ( UrlHashCollision collision : collisions )
         {
-            ThreatMatch match = cache.getPositive( collision.fullHash, false );
+            ThreatMatch match = cache.getPositive( collision.fullHash, collision.descriptor, false );
             if ( match != null )
             {
                 threats.add( match );
@@ -142,35 +139,28 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         }
 
         // check if we have expired positive cache entries
-        List<UrlHashCollision> expiredCollisions = new ArrayList<>();
         for ( UrlHashCollision collision : collisions )
         {
-            ThreatMatch match = cache.getPositive( collision.fullHash, true );
+            ThreatMatch match = cache.getPositive( collision.fullHash, collision.descriptor, true );
             if ( match != null )
             {
-                threats.add( match );
-                expiredCollisions.add( collision );
+                LOGGER.info( "Expired positive cache hit found. Sending full hash request." );
+                return requestFullHashes( collisions );
             }
-        }
-        if ( !expiredCollisions.isEmpty() )
-        {
-            LOGGER.info( "Expired positive cache hit found. Sending full hash request in background." );
-            // small deviation from the API protocol - we consider URL as unsafe due to expired positive cache hits
-            // we do send full hash request as per protocol but in the background
-            forkFullHashRequest( expiredCollisions );
-            return threats;
         }
 
         Iterator<UrlHashCollision> it = collisions.iterator();
         while ( it.hasNext() )
         {
-            if ( cache.hasNegative( it.next().fullHash ) )
+            UrlHashCollision collision = it.next();
+            if ( cache.hasNegative( collision.hashPrefix, collision.descriptor ) )
             {
                 it.remove();
             }
         }
         if ( collisions.isEmpty() )
         {
+            LOGGER.info( "Hash prefixes are in a negative cache. Considering URL as safe." );
             return Collections.emptyList();
         }
         return requestFullHashes( collisions );
@@ -178,25 +168,26 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
 
 
     /**
-     * This method does everything to check if supplied URL is listed in the local database.
+     * This method checks hash prefixes of the URL whether they are listed in the local database and returns all
+     * existing collisions.
      *
-     * @param url
-     * @return list of hash prefix collisions in local database; never {@code null}
+     * @param url URL string to check
+     * @return collection of hash prefix collisions in local database; never {@code null}
      * @throws IOException
      */
-    private List<UrlHashCollision> findHashPrefixCollisions( String url ) throws IOException
+    private Set<UrlHashCollision> findHashPrefixCollisions( String url ) throws IOException
     {
         String canonicalized = canonicalizer.canonicalize( url );
         Set<String> expressions = expressionGenerator.makeExpressions( canonicalized );
 
-        List<UrlHashCollision> collisions = new ArrayList<>();
+        Set<UrlHashCollision> collisions = new HashSet<>();
         for ( int n = Hashing.MIN_SIGNIFICANT_BYTES; n < Hashing.MAX_SIGNIFICANT_BYTES; n++ )
         {
             for ( String expression : expressions )
             {
                 String prefix = hashing.computeHashPrefix( expression, n );
-                ThreatListDescriptor descriptor = presentInThreatList( prefix );
-                if ( descriptor != null )
+                List<ThreatListDescriptor> lists = presentInThreatLists( prefix );
+                for ( ThreatListDescriptor descriptor : lists )
                 {
                     UrlHashCollision collision = new UrlHashCollision();
                     collision.hashPrefix = prefix;
@@ -210,40 +201,21 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
     }
 
 
-    private ThreatListDescriptor presentInThreatList( String prefix ) throws IOException
+    private List<ThreatListDescriptor> presentInThreatLists( String prefix ) throws IOException
     {
+        List<ThreatListDescriptor> lists = new ArrayList<>();
         for ( ThreatListDescriptor descriptor : descriptorsCache.get() )
         {
             if ( localDatabase.contains( prefix, descriptor ) )
             {
-                return descriptor;
+                lists.add( descriptor );
             }
         }
-        return null;
+        return lists;
     }
 
 
-    private void forkFullHashRequest( List<UrlHashCollision> collisions )
-    {
-        executor.execute( new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    requestFullHashes( collisions );
-                }
-                catch ( DecoderException | IOException | RuntimeException ex )
-                {
-                    LOGGER.error( "Failed to make full hash request in background", ex );
-                }
-            }
-        } );
-    }
-
-
-    private List<ThreatMatch> requestFullHashes( List<UrlHashCollision> collisions ) throws DecoderException, IOException
+    private List<ThreatMatch> requestFullHashes( Set<UrlHashCollision> collisions ) throws DecoderException, IOException
     {
         if ( !stateHolder.isFindAllowed() )
         {
@@ -255,6 +227,13 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         for ( ThreatListDescriptor descriptor : descriptorsCache.get() )
         {
             clientStates.add( stateHolder.getState( descriptor ) );
+        }
+
+        // prepare set of included threat lists to be used for negative caching
+        Set<ThreatListDescriptor> lists = new HashSet<>();
+        for ( UrlHashCollision collision : collisions )
+        {
+            lists.add( collision.descriptor );
         }
 
         ThreatInfo threatInfo = new ThreatInfo();
@@ -270,7 +249,7 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         Map<String, Object> payload = wrapPayload( "clientStates", clientStates );
         payload.put( "threatInfo", threatInfo );
 
-        ApiResponse apiResponse;
+        ApiResponse apiResponse = null;
         HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "fullHashes:find", payload );
         try ( CloseableHttpResponse resp = httpClient.execute( req );
               InputStream is = getInputStream( resp ) )
@@ -278,40 +257,35 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
             // TODO: back-off on status codes other than 200
             apiResponse = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
         }
-        try
-        {
-            if ( apiResponse.matches == null )
-            {
-                return Collections.emptyList();
-            }
-            List<ThreatMatch> matches = new ArrayList<>();
-            for ( ThreatMatch match : apiResponse.matches )
-            {
-                byte[] bytes = Base64.getDecoder().decode( match.getThreat().getHash() );
-                String hexFull = Hex.encodeHexString( bytes );
-                if ( collisions.stream().filter( c -> c.fullHash.equalsIgnoreCase( hexFull ) ).findFirst().isPresent() )
-                {
-                    matches.add( match );
-                    cache.putPositive( match );
-                }
-                else if ( apiResponse.negativeCacheDuration != null )
-                {
-                    long duration = Gsb4j.durationToMillis( apiResponse.negativeCacheDuration );
-                    cache.putNegative( hexFull, duration );
-                }
-            }
-
-            LOGGER.info( "Response to full hash request: {}", gson.toJson( matches ) );
-            return matches;
-        }
         finally
         {
-            if ( apiResponse.minimumWaitDuration != null )
+            if ( apiResponse != null && apiResponse.minimumWaitDuration != null )
             {
                 long duration = Gsb4j.durationToMillis( apiResponse.minimumWaitDuration );
                 stateHolder.setMinWaitDurationForFinds( duration );
             }
         }
+
+        List<ThreatMatch> responseMatches = Optional.ofNullable( apiResponse.matches ).orElse( Collections.emptyList() );
+        List<ThreatMatch> matches = new ArrayList<>();
+        for ( ThreatMatch match : responseMatches )
+        {
+            boolean fullHashMatchFound = collisions.removeIf( c -> c.matches( match ) );
+            if ( fullHashMatchFound )
+            {
+                matches.add( match );
+                cache.putPositive( match );
+            }
+        }
+
+        if ( apiResponse.negativeCacheDuration != null )
+        {
+            long duration = Gsb4j.durationToMillis( apiResponse.negativeCacheDuration );
+            collisions.forEach( c -> cache.putNegative( c.hashPrefix, duration, lists ) );
+        }
+
+        LOGGER.info( "Response to full hash request: {}", gson.toJson( matches ) );
+        return matches;
     }
 
 
@@ -334,6 +308,42 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         String hashPrefix;
         String fullHash;
         ThreatListDescriptor descriptor;
+
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash( this.fullHash, this.descriptor );
+        }
+
+
+        @Override
+        public boolean equals( Object obj )
+        {
+            if ( obj instanceof UrlHashCollision )
+            {
+                UrlHashCollision other = ( UrlHashCollision ) obj;
+                return Objects.equals( this.fullHash, other.fullHash )
+                        && Objects.equals( this.descriptor, other.descriptor );
+            }
+            return false;
+        }
+
+
+        boolean matches( ThreatMatch match )
+        {
+            boolean descriptorMatch = match.getThreatType() == descriptor.getThreatType()
+                    && match.getPlatformType() == descriptor.getPlatformType()
+                    && match.getThreatEntryType() == descriptor.getThreatEntryType();
+            if ( descriptorMatch )
+            {
+                byte[] bytes = Base64.getDecoder().decode( match.getThreat().getHash() );
+                String fullHashRemote = Hex.encodeHexString( bytes );
+                return fullHash.equals( fullHashRemote );
+            }
+            return false;
+        }
+
     }
 
 

@@ -19,8 +19,12 @@ package kg.net.bazi.gsb4j;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -70,7 +74,12 @@ public class Gsb4jModule extends AbstractModule
     @Singleton
     ScheduledExecutorService makeScheduler()
     {
-        return Executors.newScheduledThreadPool( 4 );
+        Logger logger = LoggerFactory.getLogger( Logger.ROOT_LOGGER_NAME );
+        ThreadFactory tf = new BasicThreadFactory.Builder()
+                .namingPattern( "gsb4j-pool-%d" )
+                .uncaughtExceptionHandler( (t, ex) -> logger.error( "Thread {} failed", t.getName(), ex ) )
+                .build();
+        return Executors.newScheduledThreadPool( 4, tf );
     }
 
 }

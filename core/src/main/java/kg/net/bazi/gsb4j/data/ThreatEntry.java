@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kg.net.bazi.gsb4j.data;
+
+
+import java.util.Objects;
 
 
 /**
@@ -63,6 +67,32 @@ public class ThreatEntry
     {
         this.digest = digest;
     }
+
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode( this.hash );
+        hash = 97 * hash + Objects.hashCode( this.url );
+        hash = 97 * hash + Objects.hashCode( this.digest );
+        return hash;
+    }
+
+
+    @Override
+    public boolean equals( Object obj )
+    {
+        if ( obj instanceof ThreatEntry )
+        {
+            ThreatEntry other = ( ThreatEntry ) obj;
+            return Objects.equals( this.hash, other.hash )
+                    && Objects.equals( this.url, other.url )
+                    && Objects.equals( this.digest, other.digest );
+        }
+        return true;
+    }
+
 
 }
 

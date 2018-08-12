@@ -19,6 +19,8 @@ package kg.net.bazi.gsb4j.api;
 
 import java.util.Base64;
 import java.util.Iterator;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +35,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.data.ThreatListDescriptor;
 import kg.net.bazi.gsb4j.data.ThreatMatch;
 
 
@@ -46,14 +49,14 @@ class UpdateApiCache extends ApiResponseCacheBase
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( UpdateApiCache.class );
 
-    private ConcurrentMap<String, ThreatMatch> positiveCache = new ConcurrentHashMap<>();
+    private ConcurrentMap<PositiveCacheKey, ThreatMatch> positiveCache = new ConcurrentHashMap<>();
     private ConcurrentMap<String, NegativeCacheEntry> negativeCache = new ConcurrentHashMap<>();
 
 
     @Inject
     UpdateApiCache( @Named( Gsb4j.GSB4J ) ScheduledExecutorService scheduler )
     {
-        startMe( scheduler, 1, 3, TimeUnit.MINUTES );
+        startMe( scheduler, 1, 5, TimeUnit.MINUTES );
     }
 
 
@@ -83,12 +86,8 @@ class UpdateApiCache extends ApiResponseCacheBase
             ThreatMatch match = positiveIt.next();
             if ( isExpired( match ) )
             {
-                // expired positive cache entries are not immediately removed; we clear after 24 hours 
-                if ( System.currentTimeMillis() - match.getTimestamp() > TimeUnit.HOURS.toMillis( 24 ) )
-                {
-                    positiveIt.remove();
-                    removedPositive++;
-                }
+                positiveIt.remove();
+                removedPositive++;
             }
         }
         if ( removedPositive > 0 )
@@ -101,14 +100,15 @@ class UpdateApiCache extends ApiResponseCacheBase
     /**
      * Gets positive cache entry for the full hash.
      *
-     * @param fullHash full hash to get positive threat match for
+     * @param fullHash full hash to get cached threat match for
+     * @param descriptor the value of descriptor
      * @param expired indicates if selected cache entry shall be unexpired or expired
-     * @return threat match if there is a positive cache entry for the full hash that matches {@code expired} parameter;
-     * {@code null} otherwise
+     * @return the kg.net.bazi.gsb4j.data.ThreatMatch
      */
-    public ThreatMatch getPositive( String fullHash, boolean expired )
+    public ThreatMatch getPositive( String fullHash, ThreatListDescriptor descriptor, boolean expired )
     {
-        ThreatMatch match = positiveCache.get( fullHash );
+        PositiveCacheKey key = new PositiveCacheKey( fullHash, descriptor );
+        ThreatMatch match = positiveCache.get( key );
         if ( match != null )
         {
             if ( expired && isExpired( match ) )
@@ -125,53 +125,105 @@ class UpdateApiCache extends ApiResponseCacheBase
 
 
     /**
-     * Puts threat match as a positive cache entry.
+     * Puts threat match as a positive cache entry. Positive cache entries are created for full hashes and expiration
+     * depends on "cacheDuration" field.
      *
-     * @param match match to put cache entry for
+     * @param match match to create cache entry for
      */
     public void putPositive( ThreatMatch match )
     {
         byte[] bytes = Base64.getDecoder().decode( match.getThreat().getHash() );
         String hexFullHash = Hex.encodeHexString( bytes );
+
+        ThreatListDescriptor descriptor = makeDesceiptor( match );
+        PositiveCacheKey key = new PositiveCacheKey( hexFullHash, descriptor );
+
         match.setTimestamp( System.currentTimeMillis() );
-        positiveCache.put( hexFullHash, match );
+        positiveCache.put( key, match );
     }
 
 
     /**
-     * Checks if there is an unexpired negative cache entry for the full hash.
+     * Checks if there is a negative cache entry for the hash prefix.
      *
-     * @param fullHash full hash to check for negative cache entry
-     * @return {@code true} if there is an unexpired negative cache entry; {@code falses} otherwise
+     * @param hashPrefix hash prefix to check
+     * @param threatlist threat list for which hash prefix should be checked against
+     * @return {@code true} if there is a negative cache entry; {@code false} otherwise
      */
-    public boolean hasNegative( String fullHash )
+    public boolean hasNegative( String hashPrefix, ThreatListDescriptor threatlist )
     {
-        NegativeCacheEntry e = negativeCache.get( fullHash );
-        return e != null && e.timestamp + e.duration > System.currentTimeMillis();
+        NegativeCacheEntry e = negativeCache.get( hashPrefix );
+        return e != null && e.timestamp + e.duration > System.currentTimeMillis() && e.lists.contains( threatlist );
     }
 
 
     /**
-     * Puts a negative cache entry for the full hash.
+     * Puts a negative cache entry for the hash prefix.
      *
-     * @param fullHash full hash to put negative cache entry for
-     * @param duration negative duration to cache threat match
+     * @param hashPrefix hash prefix create negative cache entry for
+     * @param duration duration of how long full hashes with the supplied prefix are to be considered safe
+     * @param lists threat lists for which full hashes with the supplied prefix are to be considered safe
      */
-    public void putNegative( String fullHash, long duration )
+    public void putNegative( String hashPrefix, long duration, Set<ThreatListDescriptor> lists )
     {
-        negativeCache.put( fullHash, new NegativeCacheEntry( duration ) );
+        negativeCache.put( hashPrefix, new NegativeCacheEntry( duration, lists ) );
     }
 
 
-    private class NegativeCacheEntry
+    private ThreatListDescriptor makeDesceiptor( ThreatMatch match )
+    {
+        ThreatListDescriptor descriptor = new ThreatListDescriptor();
+        descriptor.setThreatType( match.getThreatType() );
+        descriptor.setPlatformType( match.getPlatformType() );
+        descriptor.setThreatEntryType( match.getThreatEntryType() );
+        return descriptor;
+    }
+
+
+    private static class PositiveCacheKey
+    {
+        private final String fullHash;
+        private final ThreatListDescriptor descriptor;
+
+
+        public PositiveCacheKey( String fullHash, ThreatListDescriptor descriptor )
+        {
+            this.fullHash = fullHash;
+            this.descriptor = descriptor;
+        }
+
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash( fullHash, descriptor );
+        }
+
+
+        @Override
+        public boolean equals( Object obj )
+        {
+            if ( obj instanceof PositiveCacheKey )
+            {
+                PositiveCacheKey other = ( PositiveCacheKey ) obj;
+                return fullHash.equals( other.fullHash ) && descriptor.equals( other.descriptor );
+            }
+            return false;
+        }
+    }
+
+
+    private static class NegativeCacheEntry
     {
         long duration;
         long timestamp = System.currentTimeMillis();
+        Set<ThreatListDescriptor> lists;
 
 
-        public NegativeCacheEntry( long duration )
+        public NegativeCacheEntry( long duration, Set<ThreatListDescriptor> lists )
         {
             this.duration = duration;
+            this.lists = lists;
         }
     }
 

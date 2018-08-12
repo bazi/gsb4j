@@ -87,7 +87,7 @@ Extract downloaded archive to your desired location:
 
 Change current directory to the location where you extracted archive contents and launch jar file with your API key:
 
-    java -Dapi.key=AIza*******************************qwSg -jar gsb4j-http-${version}.jar 
+    java -Dapi.key=AIza...qwSg -jar gsb4j-http-${version}.jar 
 
 This will start up a web server on port 8080. Now you can send GET requests to `/gsb4j/api/lookup` or `/gsb4j/api/update`
 endpoints with parameter **url** which should be a URL you want to check against Google Safe Browsing API.
@@ -96,8 +96,7 @@ Below is a sample request from command line:
     curl http://localhost:8080/gsb4j/api/lookup?url=http://testsafebrowsing.appspot.com/apiv4/ANY_PLATFORM/MALWARE/URL/
 
 Please note that your URL supplied as a query parameter **must be URL-encoded** to avoid confusions. In the above example,
-URL is not encoded as *curl* takes care of it but ideally that URL should be encoded and supplied as
-`http%3A%2F%2Ftestsafebrowsing.appspot.com%2Fapiv4%2FANY_PLATFORM%2FMALWARE%2FURL%2F`.
+URL is not encoded as *curl* takes care of it but ideally that URL should be URL-encoded.
 
 More details on [wiki page](https://github.com/bazi/gsb4j/wiki/HTTP-Proxy).
 
@@ -110,12 +109,14 @@ Those parts do not influence the overall usability of the API but, nevertheless,
   One usually checks only one URL in hand and this is the sole reason we support single URL queries.
   This may change in future if needed.
 - Rice compression of payloads ([doc reference](https://developers.google.com/safe-browsing/v4/compression))
+- Back-off mode for unsuccessful HTTP responses from API ([doc reference](https://developers.google.com/safe-browsing/v4/request-frequency))
 
 
 ## Feedback
-Your feedbacks are welcome and appreciated. You can use discussion group
+Your feedbacks are welcome and appreciated. You can use [Gsb4j mailing list](https://groups.google.com/d/forum/gsb4j)
 to ask any kind of questions or to share your thoughts on various topics related to Gsb4j.
-This discussion group is a place for everything Gsb4j related.
+This mailing list is open to everything Gsb4j related.
 
 If you find any bugs or issues related to working of Gsb4j, then you should be creating 
-an issue here in Github.
+an issue here in Github. And of course contributions are welcome!
+

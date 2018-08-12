@@ -50,7 +50,7 @@ class LookupApiCache extends ApiResponseCacheBase
     @Inject
     LookupApiCache( @Named( Gsb4j.GSB4J ) ScheduledExecutorService scheduler )
     {
-        startMe( scheduler, 10, 30, TimeUnit.SECONDS );
+        startMe( scheduler, 10, 60, TimeUnit.SECONDS );
     }
 
 

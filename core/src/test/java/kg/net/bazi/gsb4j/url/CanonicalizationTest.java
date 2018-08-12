@@ -57,12 +57,6 @@ public class CanonicalizationTest
 
 
     @Test
-    public void testCompute()
-    {
-    }
-
-
-    @Test
     public void testCanonicalize() throws MalformedURLException, URISyntaxException, DecoderException
     {
         Assert.assertEquals( "http://host/%25", canon.canonicalize( "http://host/%25%32%35" ) );
