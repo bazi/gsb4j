@@ -17,9 +17,6 @@
 package kg.net.bazi.gsb4j.url;
 
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.commons.codec.digest.DigestUtils;
 
 
@@ -41,27 +38,7 @@ public class Hashing
 
 
     /**
-     * Computes hash prefix for a set of suffix/prefix expressions. A SHA256 hash is computed for each expression and
-     * prefixes of those hash values are returned. Length of prefix values depend on the supplied significant bytes
-     * count. Hash prefixes are encoded in hex.
-     *
-     * @param expressions suffix/prefix expressions to computed hash prefix values for
-     * @param significantBytes number of the most significant bytes to take as prefix
-     * @return set of hash prefix values encoded in hex
-     */
-    public Set<String> computeHashPrefixes( Set<String> expressions, int significantBytes )
-    {
-        checkSignificantBytes( significantBytes );
-
-        int hexDigitsLength = significantBytes * 2;
-        return expressions.stream()
-                .map( e -> DigestUtils.sha256Hex( e ).substring( 0, hexDigitsLength ) )
-                .collect( Collectors.toSet() );
-    }
-
-
-    /**
-     * Computes hash prefix for the expression containing supplied number of most significant bytes.
+     * Computes hash prefix for the expression that includes supplied number of most significant bytes.
      *
      * @param expression expression to compute hash prefix for
      * @param significantBytes significant bytes to make prefix

@@ -17,9 +17,6 @@
 package kg.net.bazi.gsb4j.url;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,57 +46,16 @@ public class HashingTest
 
 
     @Test
-    public void testComputeHashPrefixes1()
+    public void testComputeHashPrefix1()
     {
-        Set<String> expressions = new HashSet<>();
-        expressions.add( "abc" );
-
-        Set<String> hashes = hashing.computeHashPrefixes( expressions, 4 );
-        Assert.assertTrue( hashes.contains( "ba7816bf" ) );
+        String expression = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+        String prefix = hashing.computeHashPrefix( expression, 6 );
+        Assert.assertEquals( "248d6a61d206", prefix );
     }
 
 
     @Test
-    public void testComputeHashPrefixes2()
-    {
-        Set<String> expressions = new HashSet<>();
-        expressions.add( "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" );
-
-        Set<String> hashes = hashing.computeHashPrefixes( expressions, 6 );
-        Assert.assertTrue( hashes.contains( "248d6a61d206" ) );
-    }
-
-
-    @Test( expected = IllegalArgumentException.class )
-    public void testComputeHashPrefixesWithInvalidParam1()
-    {
-        hashing.computeHashPrefixes( new HashSet<>(), 1 );
-    }
-
-
-    @Test( expected = IllegalArgumentException.class )
-    public void testComputeHashPrefixesWithInvalidParam2()
-    {
-        hashing.computeHashPrefixes( new HashSet<>(), 2 );
-    }
-
-
-    @Test( expected = IllegalArgumentException.class )
-    public void testComputeHashPrefixesWithInvalidParam3()
-    {
-        hashing.computeHashPrefixes( new HashSet<>(), 3 );
-    }
-
-
-    @Test( expected = IllegalArgumentException.class )
-    public void testComputeHashPrefixesWithInvalidParam4()
-    {
-        hashing.computeHashPrefixes( new HashSet<>(), 33 );
-    }
-
-
-    @Test
-    public void testComputeHashPrefix()
+    public void testComputeHashPrefix2()
     {
         String prefix = hashing.computeHashPrefix( "abc", 4 );
         Assert.assertEquals( "ba7816bf", prefix );
@@ -144,6 +100,8 @@ public class HashingTest
     @Test
     public void testComputeFullHash()
     {
+        String fullHash = hashing.computeFullHash( "abcdefg" );
+        Assert.assertEquals( "7d1a54127b222502f5b79b5fb0803061152a44f92b37e23c6527baf665d4da9a", fullHash );
     }
 }
 

@@ -19,10 +19,10 @@ package kg.net.bazi.gsb4j;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.sql.DataSource;
@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
@@ -48,8 +49,8 @@ import kg.net.bazi.gsb4j.properties.Gsb4jPropertiesModule;
 
 
 /**
- * Main entry point to GSB4J application. Besides bootstrapping, this class is a place for application wide constant
- * values and utility methods.
+ * Main entry point to GSB4J application. Besides being a facade class, this class is a place for application wide
+ * constant values and utility methods, {@link #bootstrap()} being the most important one.
  *
  * @author <a href="https://github.com/bazi">bazi</a>
  */
@@ -71,7 +72,9 @@ public class Gsb4j
     public static final String API_BASE_URL = "https://safebrowsing.googleapis.com/v4/";
 
     private static final Logger LOGGER = LoggerFactory.getLogger( Gsb4j.class );
-    private static Injector injector;
+
+    @Inject
+    private Injector injector;
 
 
     Gsb4j()
@@ -81,37 +84,20 @@ public class Gsb4j
 
 
     /**
-     * Gets an instance of {@link Gsb4j} class. Instances of {@link Gsb4j} are used to get API implementations.
-     *
-     * @return {@link Gsb4j} instance
-     */
-    public static Gsb4j instance()
-    {
-        if ( injector == null )
-        {
-            throw new IllegalStateException( "Gsb4j shall be bootstrapped before asking instances." );
-        }
-        return injector.getInstance( Gsb4j.class );
-    }
-
-
-    /**
-     * Bootstraps Gsb4j. Modules returned by {@link #getModules()} are used.
+     * Bootstraps Gsb4j and returns an instance of {@link Gsb4j} which is used to get API implementations. When using
+     * this method, configuration parameters are expected to be supplied through system parameters.
      *
      * @return {@link Gsb4j} instance
      * @see #bootstrap(java.util.Properties)
      */
     public static Gsb4j bootstrap()
     {
-        List<Module> modules = getModules();
-        injector = Guice.createInjector( Stage.PRODUCTION, modules );
-        dumpGsb4jInfo( injector );
-        return injector.getInstance( Gsb4j.class );
+        return bootstrap( null );
     }
 
 
     /**
-     * Bootstraps Gsb4j. Modules returned by {@link #getModules(java.util.Properties)} are used.
+     * Bootstraps Gsb4j and returns an instance of {@link Gsb4j} which is used to get API implementations.
      *
      * @param properties properties to be used as a source of configuration
      * @return {@link Gsb4j} instance
@@ -119,49 +105,22 @@ public class Gsb4j
      */
     public static Gsb4j bootstrap( Properties properties )
     {
-        List<Module> modules = getModules( properties );
-        injector = Guice.createInjector( Stage.PRODUCTION, modules );
+        List<Module> modules = new ArrayList<>();
+        modules.add( new Gsb4jModule() );
+        modules.add( new LocalDatabaseModule() );
+        modules.add( new SafeBrowsingApiModule() );
+        if ( properties != null )
+        {
+            modules.add( new Gsb4jPropertiesModule().setPropertiesFile( properties ) );
+        }
+        else
+        {
+            modules.add( new Gsb4jPropertiesModule() );
+        }
+
+        Injector injector = Guice.createInjector( Stage.PRODUCTION, modules );
         dumpGsb4jInfo( injector );
         return injector.getInstance( Gsb4j.class );
-    }
-
-
-    /**
-     * Gets a list of modules necessary to bootstrap Gsb4j. Bootstrapping with these modules expect configuration values
-     * be provided through system properties.
-     *
-     * @return modules
-     * @see #getModules(java.util.Properties)
-     * @see #bootstrap()
-     */
-    public static List<Module> getModules()
-    {
-        return Arrays.asList(
-                new Gsb4jModule(),
-                new Gsb4jPropertiesModule(),
-                new LocalDatabaseModule(),
-                new SafeBrowsingApiModule()
-        );
-    }
-
-
-    /**
-     * Gets a list of modules necessary to bootstrap Gsb4j. Supplied properties will be used as a source of
-     * configuration properties.
-     *
-     * @param properties properties to be used as a source of configuration
-     * @return modules
-     * @see #getModules()
-     * @see #bootstrap(java.util.Properties)
-     */
-    public static List<Module> getModules( Properties properties )
-    {
-        return Arrays.asList(
-                new Gsb4jModule(),
-                new Gsb4jPropertiesModule().setPropertiesFile( properties ),
-                new LocalDatabaseModule(),
-                new SafeBrowsingApiModule()
-        );
     }
 
 
@@ -182,6 +141,18 @@ public class Gsb4j
 
 
     /**
+     * Gets {@link Injector} instance to be used for cases when client users want to create their own child injectors
+     * with their additional modules.
+     *
+     * @return injector instance
+     */
+    public Injector getInjector()
+    {
+        return injector;
+    }
+
+
+    /**
      * Gets Safe Browsing API client implementation instance.
      *
      * @param name name of the API implementation type, implementation names are defined as constants in
@@ -190,12 +161,13 @@ public class Gsb4j
      */
     public SafeBrowsingApi getApiClient( String name )
     {
-        Set<String> validNames = SafeBrowsingApi.getImplementationNames();
+        List<String> validNames = Arrays.asList( SafeBrowsingApi.LOOKUP_API, SafeBrowsingApi.UPDATE_API );
         if ( !validNames.contains( name ) )
         {
             String names = String.join( ", ", validNames );
-            throw new IllegalArgumentException( "Invalid name for API impl: " + name + ". Valid names: " + names );
+            throw new IllegalArgumentException( "Invalid API impl client name: " + name + ". Valid names: " + names );
         }
+
         Key<SafeBrowsingApi> key = Key.get( SafeBrowsingApi.class, Names.named( name ) );
         return injector.getInstance( key );
     }
@@ -228,6 +200,7 @@ public class Gsb4j
 
     private void close( Closeable closeable, String objectType )
     {
+        LOGGER.info( "Closing {}", objectType );
         try
         {
             closeable.close();

@@ -17,9 +17,8 @@
 package kg.net.bazi.gsb4j.http;
 
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 
 import javax.servlet.DispatcherType;
 
@@ -28,13 +27,12 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.component.AbstractLifeCycle;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.Stage;
 import com.google.inject.servlet.GuiceFilter;
 
 import kg.net.bazi.gsb4j.Gsb4j;
@@ -63,8 +61,12 @@ public class Gsb4jHttpServer
         Server server;
         try
         {
-            Injector injector = bootstrapDI();
+            Gsb4j gsb4j = Gsb4j.bootstrap();
+            Injector injector = bootstrapDI( gsb4j );
+
             server = initServer( port, injector );
+            server.addLifeCycleListener( new Gsb4jHttpLifeCycleListener( gsb4j ) );
+            server.setStopAtShutdown( true );
             server.start();
         }
         catch ( Exception ex )
@@ -77,12 +79,10 @@ public class Gsb4jHttpServer
     }
 
 
-    private static Injector bootstrapDI()
+    private static Injector bootstrapDI( Gsb4j gsb4j )
     {
-        List<Module> modules = new ArrayList<>();
-        modules.addAll( Gsb4j.getModules() );
-        modules.add( new Gsb4jServletModule() );
-        return Guice.createInjector( Stage.PRODUCTION, modules );
+        Injector injector = gsb4j.getInjector();
+        return injector.createChildInjector( Arrays.asList( new Gsb4jServletModule() ) );
     }
 
 
@@ -111,6 +111,25 @@ public class Gsb4jHttpServer
         // servlets can be added here but they will not be filtered by Guice
 
         return server;
+    }
+
+
+    static class Gsb4jHttpLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycleListener
+    {
+        private final Gsb4j gsb4j;
+
+
+        private Gsb4jHttpLifeCycleListener( Gsb4j gsb4j )
+        {
+            this.gsb4j = gsb4j;
+        }
+
+
+        @Override
+        public void lifeCycleStopped( LifeCycle event )
+        {
+            gsb4j.shutdown();
+        }
     }
 
 

@@ -17,9 +17,6 @@
 package kg.net.bazi.gsb4j.api;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
 import kg.net.bazi.gsb4j.data.ThreatMatch;
 
 
@@ -51,22 +48,6 @@ public interface SafeBrowsingApi
      * @return threat match if URL is found in one of threat lists; {@code null} otherwise which means URL is safe
      */
     ThreatMatch check( String url );
-
-
-    /**
-     * Gets a set of valid names representing various API implementations.
-     *
-     * @return set of implementation names
-     */
-    public static Set<String> getImplementationNames()
-    {
-        Set<String> set = new HashSet<>();
-        set.add( LOOKUP_API );
-        set.add( UPDATE_API );
-        return set;
-    }
-;
-
 
 }
 

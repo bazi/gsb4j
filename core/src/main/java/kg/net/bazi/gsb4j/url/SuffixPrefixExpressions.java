@@ -64,7 +64,7 @@ public class SuffixPrefixExpressions
      * Generates suffix/prefix expressions for the supplied URL string.
      *
      * @param url URL to generate expressions for
-     * @return set of suffix/prefix expressions; empty set if expressions could not be generateds
+     * @return set of suffix/prefix expressions; empty set if expressions could not be generated
      */
     public Set<String> makeExpressions( String url )
     {
