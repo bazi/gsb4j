@@ -39,10 +39,15 @@ else
 gsb4j.shutdown(); // (4)
 ```
 
-1. Bootstrap Gsb4j when starting up your application. **This shall be done exactly once!** Note that when Gsb4j is bootstrapped this way (i.e. without specifying any properties), it expects configuration parameters be specified as system properties (`-Dapi.key=...`). Read below about configurations.
+1. Bootstrap Gsb4j when starting up your application. **This shall be done exactly once!**
+   Note that when Gsb4j is bootstrapped this way (i.e. without specifying any properties), it expects
+   configuration parameters be specified as system properties (`-Dapi.key=...`). Read below about configurations.
 1. Get an API client implementation instance, either Lookup API (as shown above) or Update API.
-1. Check your URL. If URL is recognized as unsafe by Google Safe Browsing, then a non-null object representing the threat is returned. Otherwise, `null` is returned which means URL in hand does not have any threat.
-1. Shutdown is optional but highly recommended so that we are all clean. It releases resources held by Gsb4j. Usually such methods are called prior to application exit, e.g. in JVM shutdown hooks.
+1. Check your URL. If URL is recognized as unsafe by Google Safe Browsing, then non-null object representing the threat
+   is returned. Otherwise, `null` is returned which means URL in hand does not have any threat.
+1. Shutdown is optional but highly recommended so that we are all clean. It releases resources held by Gsb4j.
+   Usually such methods are called prior to application exit, e.g. in JVM shutdown hooks.
+   **Shutdown Gsb4j only when you are all done and will NOT be using Gsb4j anymore**.
 
 ## Configuration
 Gsb4j needs **API key** to access Google Safe Browsing API. It can be obtained as described in API docs [here](https://developers.google.com/safe-browsing/v4/get-started).
@@ -60,7 +65,7 @@ There are two ways you can set configuration parameters: (1) using system proper
 
     java -Dapi.key=AIza...qwSg -Ddata.dir=/home/user1/other/gsb4j -jar app.jar
 
-**Properties file** should be maintained and located by you. To bootstrap Gsb4j using properties file, first you have to
+**Properties file** should be maintained and located by you. To bootstrap Gsb4j using your properties file, first you have to
 create an instance of [Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) class and load
 your properties file into that instance. Then you bootstrap Gsb4j with this Properties instance as shown below.
 
@@ -89,14 +94,14 @@ Change current directory to the location where you extracted archive contents an
 
     java -Dapi.key=AIza...qwSg -jar gsb4j-http-${version}.jar 
 
-This will start up a web server on port 8080. Now you can send GET requests to `/gsb4j/api/lookup` or `/gsb4j/api/update`
-endpoints with parameter **url** which should be a URL you want to check against Google Safe Browsing API.
+This will start up a web server on port 8080. Now you can send GET requests to `/gsb4j/api/lookup`
+endpoint with parameter **url** which should be a URL you want to check against Google Safe Browsing API.
 Below is a sample request from command line:
 
     curl http://localhost:8080/gsb4j/api/lookup?url=http://testsafebrowsing.appspot.com/apiv4/ANY_PLATFORM/MALWARE/URL/
 
 Please note that your URL supplied as a query parameter **must be URL-encoded** to avoid confusions. In the above example,
-URL is not encoded as *curl* takes care of it but ideally that URL should be URL-encoded.
+URL *is not* encoded as *curl* takes care of it but ideally that URL should be URL-encoded.
 
 More details on [wiki page](https://github.com/bazi/gsb4j/wiki/HTTP-Proxy).
 
