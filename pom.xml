@@ -57,10 +57,19 @@
         </developer>
     </developers>
 
+    <mailingLists>
+        <mailingList>
+            <name>Gsb4j Users List</name>
+            <archive>https://groups.google.com/d/forum/gsb4j</archive>
+            <post>gsb4j@googlegroups.com</post>
+        </mailingList>
+    </mailingLists>
+
     <scm>
         <connection>scm:git:git://github.com/bazi/gsb4j.git</connection>
-        <developerConnection>scm:git:git://github.com/bazi/gsb4j.git</developerConnection>
+        <developerConnection>scm:git:ssh://github.com/bazi/gsb4j.git</developerConnection>
         <url>https://github.com/bazi/gsb4j</url>
+        <tag>HEAD</tag>
     </scm>
     
     <distributionManagement>
@@ -284,6 +293,7 @@
                         <useReleaseProfile>false</useReleaseProfile>
                         <releaseProfiles>release</releaseProfiles>
                         <goals>deploy</goals>
+                        <tagNameFormat>gsb4j-@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
             </plugins>
