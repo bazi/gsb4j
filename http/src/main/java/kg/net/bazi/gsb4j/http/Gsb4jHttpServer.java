@@ -53,7 +53,7 @@ public class Gsb4jHttpServer
      * by system property "http.port" (defaults to 8080).
      *
      * @param args arguments not used
-     * @throws InterruptedException
+     * @throws InterruptedException when web server thread is interrupted
      */
     public static void main( String[] args ) throws InterruptedException
     {

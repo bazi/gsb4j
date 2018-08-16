@@ -42,7 +42,7 @@
                         <manifest>
                             <mainClass>kg.net.bazi.gsb4j.http.Gsb4jHttpServer</mainClass>
                             <addClasspath>true</addClasspath>
-                            <classpathPrefix>${maven.deps.classpath}/</classpathPrefix>
+                            <classpathPrefix>${maven.dependencies.dir}/</classpathPrefix>
                         </manifest>
                     </archive>
                 </configuration>

@@ -20,13 +20,14 @@
 
     <formats>
         <format>tgz</format>
+        <format>zip</format>
     </formats>
 
     <includeBaseDirectory>false</includeBaseDirectory>
 
     <fileSets>
         <fileSet>
-            <directory>${project.build.directory}/${maven.deps.classpath}</directory>
+            <directory>${project.build.directory}/${maven.dependencies.dir}</directory>
             <outputDirectory>lib</outputDirectory>
         </fileSet>
         <fileSet>

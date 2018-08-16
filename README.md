@@ -8,11 +8,8 @@ It has both Lookup API and Update API implementations.
 - JDK 8
 - Maven
 
+
 ## Get started
-
-TODO:
-- release to central and provide GAV coordinates
-
 
 You can use Gsb4j by including the following dependency declaration in your POM file:
 ```xml
@@ -81,7 +78,10 @@ There is a ready HTTP proxy for Gsb4j. This is handy for those who want a quick 
 You can download an archive, extract it, and launch right away - and you are ready to check URLs.
 Here is how to launch HTTP proxy and how to check URLs.
 
-Extract downloaded archive to your desired location:
+TODO: add links to bundle files
+Download [tarball]()
+or [zip]()
+archive, and extract it to your desired location (example uses tarball):
 
     tar xzf gsb4j-http-${version}-bundle.tgz -C /home/user1/test/
 
