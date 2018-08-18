@@ -21,7 +21,7 @@
     <parent>
         <groupId>kg.net.bazi.gsb4j</groupId>
         <artifactId>gsb4j-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <artifactId>gsb4j-http</artifactId>
