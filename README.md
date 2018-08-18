@@ -84,9 +84,8 @@ There is a ready HTTP proxy for Gsb4j. This is handy for those who want a quick 
 You can download an archive, extract it, and launch it right away - and you are ready to check URLs.
 Here is how to launch HTTP proxy and how to check URLs.
 
-Download [tarball](https://repo1.maven.org/maven2/kg/net/bazi/gsb4j/gsb4j-http/1.0.0/gsb4j-http-1.0.0-bundle.tgz)
-or [zip](https://repo1.maven.org/maven2/kg/net/bazi/gsb4j/gsb4j-http/1.0.0/gsb4j-http-1.0.0-bundle.zip)
-archive, and extract it to your desired location (example uses tarball):
+Download tarball or zip archive from [releases page](https://github.com/bazi/gsb4j/releases/latest)
+and extract it to your desired location (example uses tarball):
 
     tar xzf gsb4j-http-${version}-bundle.tgz -C /home/user1/test/
 
