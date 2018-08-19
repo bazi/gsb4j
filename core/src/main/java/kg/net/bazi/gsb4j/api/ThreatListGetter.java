@@ -33,7 +33,7 @@ import kg.net.bazi.gsb4j.data.ThreatListDescriptor;
 
 
 /**
- * Retrieves names of the Safe Browsing lists.
+ * Retrieves names of the Safe Browsing threat lists.
  *
  * @author azilet
  */

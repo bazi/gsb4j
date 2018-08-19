@@ -36,34 +36,25 @@ import kg.net.bazi.gsb4j.Gsb4jBinding;
 public class Gsb4jPropertiesModule extends AbstractModule
 {
 
-    private Properties properties;
+    private final Properties properties;
 
 
     /**
-     * Sets properties instance to use as a source of values.
+     * Constructs module with properties instance to be used as a source of configuration property values.
      *
-     * @param properties properties instance
-     * @return this class for chained setup
+     * @param properties properties to be used as a source of values
      */
-    public Gsb4jPropertiesModule setPropertiesFile( Properties properties )
+    public Gsb4jPropertiesModule( Properties properties )
     {
         this.properties = properties;
-        return this;
     }
 
 
     @Override
     protected void configure()
     {
-        if ( properties != null )
-        {
-            bind( Properties.class ).annotatedWith( Gsb4jBinding.class ).toInstance( properties );
-            bind( Gsb4jProperties.class ).to( Gsb4jFileProperties.class );
-        }
-        else
-        {
-            bind( Gsb4jProperties.class ).to( Gsb4jSystemProperties.class );
-        }
+        bind( Properties.class ).annotatedWith( Gsb4jBinding.class ).toInstance( properties );
+        bind( Gsb4jProperties.class ).to( Gsb4jFileProperties.class );
     }
 
 

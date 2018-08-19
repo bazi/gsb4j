@@ -89,7 +89,14 @@ public class Gsb4j
      */
     public static Gsb4j bootstrap()
     {
-        return bootstrap( null );
+        List<Module> modules = new ArrayList<>();
+        modules.add( new Gsb4jModule() );
+        modules.add( new LocalDatabaseModule() );
+        modules.add( new SafeBrowsingApiModule() );
+
+        Injector injector = Guice.createInjector( Stage.PRODUCTION, modules );
+        dumpGsb4jInfo( injector );
+        return injector.getInstance( Gsb4j.class );
     }
 
 
@@ -106,14 +113,7 @@ public class Gsb4j
         modules.add( new Gsb4jModule() );
         modules.add( new LocalDatabaseModule() );
         modules.add( new SafeBrowsingApiModule() );
-        if ( properties != null )
-        {
-            modules.add( new Gsb4jPropertiesModule().setPropertiesFile( properties ) );
-        }
-        else
-        {
-            modules.add( new Gsb4jPropertiesModule() );
-        }
+        modules.add( new Gsb4jPropertiesModule( properties ) );
 
         Injector injector = Guice.createInjector( Stage.PRODUCTION, modules );
         dumpGsb4jInfo( injector );

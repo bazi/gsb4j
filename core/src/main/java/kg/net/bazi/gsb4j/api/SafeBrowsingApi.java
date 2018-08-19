@@ -21,7 +21,7 @@ import kg.net.bazi.gsb4j.data.ThreatMatch;
 
 
 /**
- * Sage Browsing API interface.
+ * Safe Browsing API interface.
  * <p>
  * As of APIv4, two implementations are available: Lookup API and Update API.
  *

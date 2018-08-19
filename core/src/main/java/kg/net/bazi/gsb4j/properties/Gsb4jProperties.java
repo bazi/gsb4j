@@ -20,6 +20,8 @@ package kg.net.bazi.gsb4j.properties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.google.inject.ImplementedBy;
+
 import kg.net.bazi.gsb4j.Gsb4j;
 
 
@@ -28,11 +30,21 @@ import kg.net.bazi.gsb4j.Gsb4j;
  *
  * @author <a href="https://github.com/bazi">bazi</a>
  */
+@ImplementedBy( Gsb4jSystemProperties.class )
 public interface Gsb4jProperties
 {
 
+    /**
+     * Configuration property name for API key.
+     */
     String API_KEY = "api.key";
+    /**
+     * Configuration property name for HTTP Referrer value for the API key.
+     */
     String API_HTTP_REFERRER = "api.http.referrer";
+    /**
+     * Configuration property name for Gsb4j data directory.
+     */
     String DATA_DIRECTORY = "data.dir";
 
 

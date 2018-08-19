@@ -34,17 +34,17 @@ import kg.net.bazi.gsb4j.Gsb4jBinding;
  */
 class Gsb4jFileProperties implements Gsb4jProperties
 {
+    final Properties properties;
+
+
     @Inject
-    @Gsb4jBinding
-    Properties properties;
-
-
-    public Gsb4jFileProperties()
+    public Gsb4jFileProperties( @Gsb4jBinding Properties properties )
     {
         if ( !properties.containsKey( API_KEY ) )
         {
             throw new ProvisionException( "API key not supplied" );
         }
+        this.properties = properties;
     }
 
 
