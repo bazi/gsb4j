@@ -23,9 +23,8 @@ import java.util.Properties;
 
 import com.google.inject.Inject;
 import com.google.inject.ProvisionException;
-import com.google.inject.name.Named;
 
-import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.Gsb4jBinding;
 
 
 /**
@@ -36,7 +35,7 @@ import kg.net.bazi.gsb4j.Gsb4j;
 class Gsb4jFileProperties implements Gsb4jProperties
 {
     @Inject
-    @Named( Gsb4j.GSB4J )
+    @Gsb4jBinding
     Properties properties;
 
 

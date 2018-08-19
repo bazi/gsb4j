@@ -28,9 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
-import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.Gsb4jBinding;
 import kg.net.bazi.gsb4j.data.ThreatMatch;
 
 
@@ -48,7 +47,7 @@ class LookupApiCache extends ApiResponseCacheBase
 
 
     @Inject
-    LookupApiCache( @Named( Gsb4j.GSB4J ) ScheduledExecutorService scheduler )
+    LookupApiCache( @Gsb4jBinding ScheduledExecutorService scheduler )
     {
         startMe( scheduler, 10, 60, TimeUnit.SECONDS );
     }

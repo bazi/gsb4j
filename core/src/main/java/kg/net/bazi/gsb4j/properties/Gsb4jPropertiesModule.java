@@ -20,9 +20,9 @@ package kg.net.bazi.gsb4j.properties;
 import java.util.Properties;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 
 import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.Gsb4jBinding;
 
 
 /**
@@ -57,7 +57,7 @@ public class Gsb4jPropertiesModule extends AbstractModule
     {
         if ( properties != null )
         {
-            bind( Properties.class ).annotatedWith( Names.named( Gsb4j.GSB4J ) ).toInstance( properties );
+            bind( Properties.class ).annotatedWith( Gsb4jBinding.class ).toInstance( properties );
             bind( Gsb4jProperties.class ).to( Gsb4jFileProperties.class );
         }
         else

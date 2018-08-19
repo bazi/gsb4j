@@ -35,9 +35,9 @@ import org.slf4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.Gsb4jBinding;
 import kg.net.bazi.gsb4j.data.PlatformType;
 import kg.net.bazi.gsb4j.data.ThreatMatch;
 import kg.net.bazi.gsb4j.properties.Gsb4jClientInfoProvider;
@@ -52,14 +52,14 @@ import kg.net.bazi.gsb4j.properties.Gsb4jProperties;
 abstract class SafeBrowsingApiBase
 {
     @Inject
-    @Named( value = Gsb4j.GSB4J )
+    @Gsb4jBinding
     CloseableHttpClient httpClient;
 
     @Inject
     Gsb4jClientInfoProvider clientInfoProvider;
 
     @Inject
-    @Named( value = Gsb4j.GSB4J )
+    @Gsb4jBinding
     Gson gson;
 
     private String apiKey;

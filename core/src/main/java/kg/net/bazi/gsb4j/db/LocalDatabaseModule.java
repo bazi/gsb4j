@@ -20,9 +20,9 @@ package kg.net.bazi.gsb4j.db;
 import javax.sql.DataSource;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 
 import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.Gsb4jBinding;
 
 
 /**
@@ -40,7 +40,7 @@ public class LocalDatabaseModule extends AbstractModule
     {
         bind( LocalDatabase.class ).to( SqlLocalDatabase.class );
 
-        bind( DataSource.class ).annotatedWith( Names.named( Gsb4j.GSB4J ) )
+        bind( DataSource.class ).annotatedWith( Gsb4jBinding.class )
                 .toProvider( DbConnectionProvider.class ).asEagerSingleton();
     }
 }

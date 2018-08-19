@@ -32,8 +32,6 @@ import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
 
 /**
@@ -51,14 +49,14 @@ public class Gsb4jModule extends AbstractModule
     protected void configure()
     {
         bind( CloseableHttpClient.class )
-                .annotatedWith( Names.named( Gsb4j.GSB4J ) )
+                .annotatedWith( Gsb4jBinding.class )
                 .toProvider( HttpClientProvider.class )
                 .asEagerSingleton();
     }
 
 
     @Provides
-    @Named( Gsb4j.GSB4J )
+    @Gsb4jBinding
     @Singleton
     Gson makeGson( EnumTypeAdapterFactory factory )
     {
@@ -70,7 +68,7 @@ public class Gsb4jModule extends AbstractModule
 
 
     @Provides
-    @Named( Gsb4j.GSB4J )
+    @Gsb4jBinding
     @Singleton
     ScheduledExecutorService makeScheduler()
     {

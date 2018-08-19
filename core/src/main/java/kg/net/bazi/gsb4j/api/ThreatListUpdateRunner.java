@@ -25,9 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
 
-import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.Gsb4jBinding;
 
 
 /**
@@ -44,7 +43,7 @@ class ThreatListUpdateRunner implements Runnable
 
 
     @Inject
-    public ThreatListUpdateRunner( @Named( Gsb4j.GSB4J ) ScheduledExecutorService scheduler )
+    public ThreatListUpdateRunner( @Gsb4jBinding ScheduledExecutorService scheduler )
     {
         startMe( scheduler );
     }

@@ -36,9 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
-import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.Gsb4jBinding;
 import kg.net.bazi.gsb4j.data.ThreatListDescriptor;
 
 
@@ -57,7 +56,7 @@ class SqlLocalDatabase implements LocalDatabase
     final int BATCH_SIZE = 50 * 1000;
 
     @Inject
-    @Named( Gsb4j.GSB4J )
+    @Gsb4jBinding
     DataSource dataSource;
 
 

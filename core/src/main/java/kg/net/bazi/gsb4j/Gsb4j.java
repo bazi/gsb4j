@@ -57,11 +57,8 @@ import kg.net.bazi.gsb4j.properties.Gsb4jPropertiesModule;
 public class Gsb4j
 {
     /**
-     * Name to distinguish things that belong to Gsb4j. Specifically, it is used to name Guice bindings for types not
-     * specific to Gsb4j. For example, Gsb4j has its own binding of
-     * {@link java.util.concurrent.ScheduledExecutorService} instance which is annotated with this name. This avoids
-     * possible conflicts when Gsb4j module is bootstrapped together with other modules that have bindings to the same
-     * standard classes.
+     * Constant string of "gsb4j". Previously primarily used to name Gsb4j specific Guice bindings which later replaces
+     * by {@link Gsb4jBinding} annotation.
      */
     public static final String GSB4J = "gsb4j";
 
@@ -179,17 +176,17 @@ public class Gsb4j
     public void shutdown()
     {
         // stop all scheduled tasks
-        Key<ScheduledExecutorService> scedulerKey = Key.get( ScheduledExecutorService.class, Names.named( GSB4J ) );
+        Key<ScheduledExecutorService> scedulerKey = Key.get( ScheduledExecutorService.class, Gsb4jBinding.class );
         ScheduledExecutorService scheduler = injector.getInstance( scedulerKey );
         scheduler.shutdown();
 
         // cleanup HTTP client resources
-        Key<CloseableHttpClient> httpClientKey = Key.get( CloseableHttpClient.class, Names.named( GSB4J ) );
+        Key<CloseableHttpClient> httpClientKey = Key.get( CloseableHttpClient.class, Gsb4jBinding.class );
         CloseableHttpClient httpClient = injector.getInstance( httpClientKey );
         close( httpClient, "HTTP client" );
 
         // close db connections
-        Key<DataSource> dataSourceKey = Key.get( DataSource.class, Names.named( GSB4J ) );
+        Key<DataSource> dataSourceKey = Key.get( DataSource.class, Gsb4jBinding.class );
         DataSource dataSource = injector.getInstance( dataSourceKey );
         if ( dataSource instanceof Closeable )
         {
