@@ -1,7 +1,7 @@
 # gsb4j
 [![Build Status](https://travis-ci.org/bazi/gsb4j.svg?branch=master)](https://travis-ci.org/bazi/gsb4j)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/kg.net.bazi.gsb4j/gsb4j-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/kg.net.bazi.gsb4j/gsb4j-core)
-[![Javadoc](http://javadoc.io/badge/kg.net.bazi.gsb4j/gsb4j-core.svg?color=brightgreen)](http://javadoc.io/doc/kg.net.bazi.gsb4j/gsb4j-core)
+[![Javadoc](https://javadoc.io/badge/kg.net.bazi.gsb4j/gsb4j-core.svg?color=brightgreen)](http://javadoc.io/doc/kg.net.bazi.gsb4j/gsb4j-core)
 
 Gsb4j is a Java client implementation of [Google Safe Browsing](https://developers.google.com/safe-browsing/) API v4.
 It has both Lookup API and Update API implementations.

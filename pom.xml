@@ -191,6 +191,7 @@
                         <descriptors>
                             <descriptor>${maven.assembly.descriptor}</descriptor>
                         </descriptors>
+                        <attach>true</attach>
                     </configuration>
                     <executions>
                         <execution>
@@ -199,9 +200,6 @@
                             <goals>
                                 <goal>single</goal>
                             </goals>
-                            <configuration>
-                                <attach>true</attach>
-                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
