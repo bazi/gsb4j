@@ -89,27 +89,26 @@ class ThreatListUpdater extends SafeBrowsingApiBase
         Map<String, Object> payload = wrapPayload( "listUpdateRequests", updateRequests );
         HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "threatListUpdates:fetch", payload );
 
-        ApiResponse apiResp = null;
+        ApiResponse apiResp;
         try ( CloseableHttpResponse resp = httpClient.execute( req );
               InputStream is = getInputStream( resp ) )
         {
             apiResp = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
         }
-        finally
-        {
-            if ( apiResp != null && apiResp.minimumWaitDuration != null )
-            {
-                long duration = Gsb4j.durationToMillis( apiResp.minimumWaitDuration );
-                stateHolder.setMinWaitDurationForUpdates( duration );
-            }
-        }
-        if ( apiResp != null && apiResp.listUpdateResponses != null )
+        // no null check here - parser returns null only when input is at EOF which is really an exceptional case
+        if ( apiResp.listUpdateResponses != null )
         {
             int successful = updateResponseHandler.apply( apiResp.listUpdateResponses );
             int total = apiResp.listUpdateResponses.size();
 
             LOGGER.info( "{} of {} updates successfully applied to local database", successful, total );
             LOGGER.info( "=========================================================" );
+        }
+        // update min wait duration *only after* we have handled all updates
+        if ( apiResp.minimumWaitDuration != null )
+        {
+            long duration = Gsb4j.durationToMillis( apiResp.minimumWaitDuration );
+            stateHolder.setMinWaitDurationForUpdates( duration );
         }
     }
 

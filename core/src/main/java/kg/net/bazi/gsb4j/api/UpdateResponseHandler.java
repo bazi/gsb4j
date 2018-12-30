@@ -22,9 +22,12 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -202,22 +205,36 @@ class UpdateResponseHandler
     }
 
 
+    /**
+     * Removes items from a list by indices given in another list.
+     *
+     * This is an optimized implementation for all standard implementations of {@link List}. To be precise: (1)
+     * implementation of indices list does not have any effect on the performance of this method; (2) for target list,
+     * if it is a linked list then this method will perform at its utmost performance, if it is an array list then this
+     * method will perform just like a straightforward implementation where items are removed from the end (there is no
+     * better way for array lists).
+     *
+     * @param indices list of indices to be removed (implementation of list does not matter)
+     * @param hashes target list from which items are to be removed (linked list will perform best)
+     */
     private void removeItemsByRawIndices( List<Integer> indices, List<String> hashes )
     {
-        Collections.sort( indices );
-
         int removed = 0;
-        for ( int i = indices.size() - 1; i >= 0; i-- )
+        Set<Integer> indicesToRemove = new HashSet<>( indices );
+
+        Collections.sort( hashes );
+        ListIterator<String> it = hashes.listIterator( hashes.size() );
+        while ( it.hasPrevious() && removed < indicesToRemove.size() )
         {
-            int ind = indices.get( i ).intValue();
-            if ( 0 <= ind && ind < hashes.size() )
+            if ( indicesToRemove.contains( it.previousIndex() ) )
             {
-                hashes.remove( ind );
+                it.previous();
+                it.remove();
                 removed++;
             }
             else
             {
-                LOGGER.warn( "Invalid index to remove: {}, local list size: {}", ind, hashes.size() );
+                it.previous();
             }
         }
         LOGGER.info( "Removed {} prefixes", removed );
