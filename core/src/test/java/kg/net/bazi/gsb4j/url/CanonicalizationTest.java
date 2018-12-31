@@ -88,7 +88,7 @@ public class CanonicalizationTest
         Assert.assertEquals( "http://evil.com/foo", canon.canonicalize( "http://evil.com/foo#bar#baz" ) );
         Assert.assertEquals( "http://evil.com/foo;", canon.canonicalize( "http://evil.com/foo;" ) );
         Assert.assertEquals( "http://evil.com/foo?bar;", canon.canonicalize( "http://evil.com/foo?bar;" ) );
-//        Assert.assertEquals( "http://%01%80.com/", hashPrefix.canonicalize( "http://\\x01\\x80.com/" ) );
+        Assert.assertEquals( "http://%01%80.com/", canon.canonicalize( "http://\\x01\\x80.com/" ) );
         Assert.assertEquals( "http://notrailingslash.com/", canon.canonicalize( "http://notrailingslash.com" ) );
         Assert.assertEquals( "http://www.gotaport.com/", canon.canonicalize( "http://www.gotaport.com:1234/" ) );
         Assert.assertEquals( "http://www.google.com/", canon.canonicalize( "  http://www.google.com/  " ) );

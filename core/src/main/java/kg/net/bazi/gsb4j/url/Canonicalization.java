@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,9 +95,6 @@ public class Canonicalization
             }
         }
 
-        // TODO: http://\\x01\\x80.com/
-        //host = decodeHexSymbols( host );
-
         String path = normalized.path;
         // (1) replce: "/./" to "/"; remove "/../" and "/.." along with the preceding path component
         // (2) replace consecutive slashes
@@ -110,7 +106,7 @@ public class Canonicalization
                 .replace( normalized.host, host )
                 .replace( normalized.path, path );
 
-        // percent escape query string
+        // percent escape special characters in URL
         StringBuilder sb = new StringBuilder();
         for ( char ch : full.toCharArray() )
         {
@@ -123,7 +119,10 @@ public class Canonicalization
                 sb.append( ch );
             }
         }
-        return sb.toString();
+        // now after performing percent escaping we can convert hex symbols represented as "\x20" to "%20"
+        // otherwise hex symbols represented as "%20" would be messed up like "%2520"
+        String escapedUrl = sb.toString();
+        return convertSlashHexSymbols( escapedUrl );
     }
 
 
@@ -206,7 +205,7 @@ public class Canonicalization
     }
 
 
-    private String decodeHexSymbols( String str ) throws DecoderException
+    private String convertSlashHexSymbols( String str )
     {
         StringBuffer sb = new StringBuffer();
         Matcher matcher = HEX_SYMBOL_PATTERN.matcher( str );
