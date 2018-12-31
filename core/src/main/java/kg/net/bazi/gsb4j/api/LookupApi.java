@@ -18,8 +18,7 @@ package kg.net.bazi.gsb4j.api;
 
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
@@ -78,9 +77,9 @@ class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "threatMatches:find", body );
 
         try ( CloseableHttpResponse resp = httpClient.execute( req );
-              InputStream is = getInputStream( resp ) )
+              Reader reader = getResponseReader( resp ) )
         {
-            ApiResponse apiResponse = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
+            ApiResponse apiResponse = gson.fromJson( reader, ApiResponse.class );
             if ( apiResponse.matches != null && !apiResponse.matches.isEmpty() )
             {
                 ThreatMatch match = selectMatch( url, apiResponse.matches );

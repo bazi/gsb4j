@@ -17,8 +17,7 @@ package kg.net.bazi.gsb4j.api;
 
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -52,9 +51,9 @@ public class ThreatListGetter extends SafeBrowsingApiBase
         List<ThreatListDescriptor> threatLists;
         HttpUriRequest req = makeRequest( HttpGet.METHOD_NAME, "threatLists", null );
         try ( CloseableHttpResponse resp = httpClient.execute( req );
-              InputStream is = getInputStream( resp ) )
+              Reader reader = getResponseReader( resp ) )
         {
-            ThreatListsResponse apiResp = gson.fromJson( new InputStreamReader( is ), ThreatListsResponse.class );
+            ThreatListsResponse apiResp = gson.fromJson( reader, ThreatListsResponse.class );
             threatLists = apiResp.threatLists;
         }
         catch ( IOException ex )

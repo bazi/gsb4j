@@ -222,7 +222,7 @@ public class Canonicalization
     /**
      * Helper POJO to be pass data between methods.
      */
-    private class NormalizedUrl
+    private static class NormalizedUrl
     {
         private String url;
         private String host;

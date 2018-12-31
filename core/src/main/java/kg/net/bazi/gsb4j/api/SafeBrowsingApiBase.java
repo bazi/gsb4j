@@ -19,6 +19,8 @@ package kg.net.bazi.gsb4j.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.Map;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
@@ -155,6 +158,21 @@ abstract class SafeBrowsingApiBase
             throw new IOException( "No message entity found in response" );
         }
         return response.getEntity().getContent();
+    }
+
+
+    /**
+     * Gets {@link Reader} for the HTTP response. This method wraps input stream returned by
+     * {@link #getInputStream(org.apache.http.HttpResponse)} by a reader implementation.
+     *
+     * @param resp HTTP response to get reader for
+     * @return input stream reader; never {@code null}
+     * @throws IOException same as {@link #getInputStream(org.apache.http.HttpResponse)}
+     */
+    Reader getResponseReader( CloseableHttpResponse resp ) throws IOException
+    {
+        InputStream is = getInputStream( resp );
+        return new InputStreamReader( is, StandardCharsets.UTF_8 );
     }
 
 

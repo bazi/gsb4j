@@ -18,8 +18,7 @@ package kg.net.bazi.gsb4j.api;
 
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -91,9 +90,9 @@ class ThreatListUpdater extends SafeBrowsingApiBase
 
         ApiResponse apiResp;
         try ( CloseableHttpResponse resp = httpClient.execute( req );
-              InputStream is = getInputStream( resp ) )
+              Reader reader = getResponseReader( resp ) )
         {
-            apiResp = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
+            apiResp = gson.fromJson( reader, ApiResponse.class );
         }
         // no null check here - parser returns null only when input is at EOF which is really an exceptional case
         if ( apiResp.listUpdateResponses != null )

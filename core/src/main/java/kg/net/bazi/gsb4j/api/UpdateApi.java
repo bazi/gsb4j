@@ -18,8 +18,7 @@ package kg.net.bazi.gsb4j.api;
 
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -252,14 +251,18 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
         ApiResponse apiResponse = null;
         HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "fullHashes:find", payload );
         try ( CloseableHttpResponse resp = httpClient.execute( req );
-              InputStream is = getInputStream( resp ) )
+              Reader reader = getResponseReader( resp ) )
         {
             // TODO: back-off on status codes other than 200
-            apiResponse = gson.fromJson( new InputStreamReader( is ), ApiResponse.class );
+            apiResponse = gson.fromJson( reader, ApiResponse.class );
         }
         finally
         {
-            if ( apiResponse != null && apiResponse.minimumWaitDuration != null )
+            if ( apiResponse == null )
+            {
+                throw new IllegalStateException( "Invalid payload from API" );
+            }
+            if ( apiResponse.minimumWaitDuration != null )
             {
                 long duration = Gsb4j.durationToMillis( apiResponse.minimumWaitDuration );
                 stateHolder.setMinWaitDurationForFinds( duration );

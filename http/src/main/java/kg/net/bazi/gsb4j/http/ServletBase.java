@@ -19,7 +19,7 @@ package kg.net.bazi.gsb4j.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -65,7 +65,11 @@ abstract class ServletBase extends HttpServlet
         SafeBrowsingApi api = getSafeBrowsingApi();
         ThreatMatch threat = api.check( url );
 
-        ResponsePayload payload = threat != null ? new ResponsePayload( threat ) : new ResponsePayload();
+        ResponsePayload payload = new ResponsePayload();
+        if ( threat != null )
+        {
+            payload.add( threat );
+        }
         String json = gson.toJson( payload );
         writeResponseJson( HttpServletResponse.SC_OK, json, resp );
     }
@@ -90,23 +94,17 @@ abstract class ServletBase extends HttpServlet
 
     static class ResponsePayload
     {
-        List<ThreatMatch> matches;
+        List<ThreatMatch> matches = new ArrayList<>();
 
 
-        public ResponsePayload()
-        {
-            matches = Collections.emptyList();
-        }
-
-
-        public ResponsePayload( ThreatMatch threat )
+        public void add( ThreatMatch threat )
         {
             // copy only useful fields for users; DO NOT send whole object
             ThreatMatch t = new ThreatMatch();
             t.setThreatType( threat.getThreatType() );
             t.setPlatformType( threat.getPlatformType() );
 
-            matches = Collections.singletonList( t );
+            matches.add( t );
         }
     }
 

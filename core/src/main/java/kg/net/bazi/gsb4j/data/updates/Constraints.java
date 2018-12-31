@@ -16,6 +16,9 @@
 package kg.net.bazi.gsb4j.data.updates;
 
 
+import java.util.Arrays;
+
+
 /**
  * Update request constraints POJO.
  *
@@ -67,13 +70,13 @@ public class Constraints
 
     public CompressionType[] getSupportedCompressions()
     {
-        return supportedCompressions;
+        return Arrays.copyOf( supportedCompressions, supportedCompressions.length );
     }
 
 
     public void setSupportedCompressions( CompressionType[] supportedCompressions )
     {
-        this.supportedCompressions = supportedCompressions;
+        this.supportedCompressions = Arrays.copyOf( supportedCompressions, supportedCompressions.length );
     }
 
 
