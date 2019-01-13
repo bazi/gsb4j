@@ -16,95 +16,77 @@
 
 package kg.net.bazi.gsb4j.api;
 
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
+import kg.net.bazi.gsb4j.data.ThreatEntry;
+import kg.net.bazi.gsb4j.data.ThreatInfo;
+import kg.net.bazi.gsb4j.data.ThreatMatch;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-
-import kg.net.bazi.gsb4j.data.ThreatEntry;
-import kg.net.bazi.gsb4j.data.ThreatInfo;
-import kg.net.bazi.gsb4j.data.ThreatMatch;
-
-
 /**
  * Lookup API interface.
  *
  * @author azilet
  */
-class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi
-{
-    private static final Logger LOGGER = LoggerFactory.getLogger( LookupApi.class );
+class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LookupApi.class);
 
     @Inject
     private LookupApiCache cache;
 
-
     @Override
-    public ThreatMatch check( String url )
-    {
-        ThreatMatch cached = cache.get( url );
-        if ( cached != null )
-        {
-            LOGGER.info( "Cached URL found: {}", url );
+    public ThreatMatch check(String url) {
+        ThreatMatch cached = cache.get(url);
+        if (cached != null) {
+            LOGGER.info("Cached URL found: {}", url);
             return cached;
         }
-        return requestApi( url );
+        return requestApi(url);
     }
 
-
     @Override
-    Logger getLogger()
-    {
+    Logger getLogger() {
         return LOGGER;
     }
 
-
-    private ThreatMatch requestApi( String url )
-    {
+    private ThreatMatch requestApi(String url) {
         ThreatInfo threatInfo = new ThreatInfo();
-        threatInfo.getThreatEntries().add( makeThreatEntry( url ) );
+        threatInfo.getThreatEntries().add(makeThreatEntry(url));
 
-        Map<String, Object> body = wrapPayload( "threatInfo", threatInfo );
-        HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "threatMatches:find", body );
+        Map<String, Object> body = wrapPayload("threatInfo", threatInfo);
+        HttpUriRequest req = makeRequest(HttpPost.METHOD_NAME, "threatMatches:find", body);
 
-        try ( CloseableHttpResponse resp = httpClient.execute( req );
-              Reader reader = getResponseReader( resp ) )
-        {
-            ApiResponse apiResponse = gson.fromJson( reader, ApiResponse.class );
-            if ( apiResponse.matches != null && !apiResponse.matches.isEmpty() )
-            {
-                ThreatMatch match = selectMatch( url, apiResponse.matches );
-                if ( match != null )
-                {
-                    cache.put( match );
+        try ( CloseableHttpResponse resp = httpClient.execute(req);
+             Reader reader = getResponseReader(resp)) {
+            ApiResponse apiResponse = gson.fromJson(reader, ApiResponse.class);
+            if (apiResponse.matches != null && !apiResponse.matches.isEmpty()) {
+                ThreatMatch match = selectMatch(url, apiResponse.matches);
+                if (match != null) {
+                    cache.put(match);
                     return match;
                 }
             }
-        }
-        catch ( IOException ex )
-        {
-            LOGGER.error( "Failed to query Lookup API", ex );
+        } catch (IOException ex) {
+            LOGGER.error("Failed to query Lookup API", ex);
         }
         return null;
     }
 
-
-    private ThreatEntry makeThreatEntry( String url )
-    {
-        ThreatEntry e = new ThreatEntry();
-        e.setUrl( url );
-        return e;
+    private ThreatEntry makeThreatEntry(String url) {
+        ThreatEntry threatEntry = new ThreatEntry();
+        threatEntry.setUrl(url);
+        return threatEntry;
     }
-
 
     /**
      * Selects a threat match for the URL.
@@ -113,24 +95,18 @@ class LookupApi extends SafeBrowsingApiBase implements SafeBrowsingApi
      * @param matches list of threat matches
      * @return threat match for the supplied URL if there is such a match; {@code null} otherwise
      */
-    private ThreatMatch selectMatch( String url, List<ThreatMatch> matches )
-    {
-        for ( ThreatMatch match : matches )
-        {
-            if ( match.getThreat().getUrl().equals( url ) )
-            {
+    private ThreatMatch selectMatch(String url, List<ThreatMatch> matches) {
+        for (ThreatMatch match : matches) {
+            if (match.getThreat().getUrl().equals(url)) {
                 return match;
             }
         }
         return null;
     }
 
+    private static class ApiResponse {
 
-    private static class ApiResponse
-    {
         List<ThreatMatch> matches;
     }
 
-
 }
-

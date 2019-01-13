@@ -16,16 +16,14 @@
 
 package kg.net.bazi.gsb4j.properties;
 
+import com.google.inject.ProvisionException;
+import com.google.inject.Singleton;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.google.inject.ProvisionException;
-import com.google.inject.Singleton;
-
 import kg.net.bazi.gsb4j.data.ClientInfo;
-
 
 /**
  * Information about Google Safe Browsing API client implementation. Client info should uniquely identify a client
@@ -34,46 +32,50 @@ import kg.net.bazi.gsb4j.data.ClientInfo;
  * @author <a href="https://github.com/bazi">bazi</a>
  */
 @Singleton
-public class Gsb4jClientInfoProvider
-{
-    /**
-     * A client ID that uniquely identifies the client implementation of the Safe Browsing API.
-     */
-    public final String CLIENT_ID;
+public class Gsb4jClientInfoProvider {
 
-    /**
-     * The version of the client implementation.
-     */
-    public final String CLIENT_VERSION;
+    private final String clientId;
+    private final String clientVersion;
 
-
-    Gsb4jClientInfoProvider()
-    {
+    Gsb4jClientInfoProvider() {
         Properties prop = new Properties();
-        try ( InputStream is = ClassLoader.getSystemResourceAsStream( "client-info.properties" ) )
-        {
-            prop.load( is );
+        try ( InputStream is = ClassLoader.getSystemResourceAsStream("client-info.properties")) {
+            prop.load(is);
+        } catch (IOException ex) {
+            throw new ProvisionException("Failed to load client implementation info", ex);
         }
-        catch ( IOException ex )
-        {
-            throw new ProvisionException( "Failed to load client implementation info", ex );
-        }
-        CLIENT_ID = prop.getProperty( "client.id" );
-        CLIENT_VERSION = prop.getProperty( "client.version" );
+        clientId = prop.getProperty("client.id");
+        clientVersion = prop.getProperty("client.version");
     }
 
+    /**
+     * Gets the client ID that uniquely identifies the client implementation of the Safe Browsing API.
+     *
+     * @return client id value
+     */
+    public String getClientId() {
+        return clientId;
+    }
+
+    /**
+     * Gets the version of the client implementation.
+     *
+     * @return client version
+     */
+    public String getClientVersion() {
+        return clientVersion;
+    }
 
     /**
      * Makes a client info for this implementation.
      *
      * @return client info instance
      */
-    public ClientInfo make()
-    {
+    public ClientInfo make() {
         ClientInfo ci = new ClientInfo();
-        ci.setClientId( CLIENT_ID );
-        ci.setClientVersion( CLIENT_VERSION );
+        ci.setClientId(clientId);
+        ci.setClientVersion(clientVersion);
         return ci;
     }
-}
 
+}

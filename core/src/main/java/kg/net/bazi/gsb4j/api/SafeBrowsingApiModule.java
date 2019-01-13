@@ -16,10 +16,8 @@
 
 package kg.net.bazi.gsb4j.api;
 
-
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-
 
 /**
  * Guice module to initialize API specific bindings.
@@ -29,16 +27,14 @@ import com.google.inject.name.Names;
  *
  * @author azilet
  */
-public class SafeBrowsingApiModule extends AbstractModule
-{
-    @Override
-    protected void configure()
-    {
-        bind( ThreatListUpdateRunner.class ).asEagerSingleton();
+public class SafeBrowsingApiModule extends AbstractModule {
 
-        bind( SafeBrowsingApi.class ).annotatedWith( Names.named( SafeBrowsingApi.LOOKUP_API ) ).to( LookupApi.class );
-        bind( SafeBrowsingApi.class ).annotatedWith( Names.named( SafeBrowsingApi.UPDATE_API ) ).to( UpdateApi.class );
-        bind( SafeBrowsingApi.class ).to( UpdateApi.class );
+    @Override
+    protected void configure() {
+        bind(ThreatListUpdateRunner.class).asEagerSingleton();
+
+        bind(SafeBrowsingApi.class).annotatedWith(Names.named(SafeBrowsingApi.LOOKUP_API)).to(LookupApi.class);
+        bind(SafeBrowsingApi.class).annotatedWith(Names.named(SafeBrowsingApi.UPDATE_API)).to(UpdateApi.class);
+        bind(SafeBrowsingApi.class).to(UpdateApi.class);
     }
 }
-

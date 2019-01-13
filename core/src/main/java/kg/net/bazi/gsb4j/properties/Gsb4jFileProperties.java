@@ -16,62 +16,49 @@
 
 package kg.net.bazi.gsb4j.properties;
 
+import com.google.inject.Inject;
+import com.google.inject.ProvisionException;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import com.google.inject.Inject;
-import com.google.inject.ProvisionException;
-
 import kg.net.bazi.gsb4j.Gsb4jBinding;
-
 
 /**
  * Implementation of {@link Gsb4jProperties} which uses supplied properties file as the source for values.
  *
  * @author <a href="https://github.com/bazi">bazi</a>
  */
-class Gsb4jFileProperties implements Gsb4jProperties
-{
+class Gsb4jFileProperties implements Gsb4jProperties {
+
     final Properties properties;
 
-
     @Inject
-    public Gsb4jFileProperties( @Gsb4jBinding Properties properties )
-    {
-        if ( !properties.containsKey( API_KEY ) )
-        {
-            throw new ProvisionException( "API key not supplied" );
+    public Gsb4jFileProperties(@Gsb4jBinding Properties properties) {
+        if (!properties.containsKey(API_KEY)) {
+            throw new ProvisionException("API key not supplied");
         }
         this.properties = properties;
     }
 
-
     @Override
-    public String getApiKey()
-    {
-        return properties.getProperty( API_KEY );
+    public String getApiKey() {
+        return properties.getProperty(API_KEY);
     }
 
-
     @Override
-    public String getApiHttpReferrer()
-    {
-        return properties.getProperty( API_HTTP_REFERRER );
+    public String getApiHttpReferrer() {
+        return properties.getProperty(API_HTTP_REFERRER);
     }
 
-
     @Override
-    public Path getDataDirectory()
-    {
-        String dataDir = properties.getProperty( DATA_DIRECTORY );
-        if ( dataDir != null && !dataDir.isEmpty() )
-        {
-            return Paths.get( dataDir );
+    public Path getDataDirectory() {
+        String dataDir = properties.getProperty(DATA_DIRECTORY);
+        if (dataDir != null && !dataDir.isEmpty()) {
+            return Paths.get(dataDir);
         }
         return Gsb4jProperties.getDefaultDataDirectory();
     }
 
 }
-

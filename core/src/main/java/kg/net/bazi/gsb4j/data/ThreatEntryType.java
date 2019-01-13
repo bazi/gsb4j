@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kg.net.bazi.gsb4j.data;
 
+package kg.net.bazi.gsb4j.data;
 
 /**
  * Types of entries that pose threats. Threat lists are collections of entries of a single type.
  *
  * @author azilet
  */
-public enum ThreatEntryType
-{
+public enum ThreatEntryType {
     THREAT_ENTRY_TYPE_UNSPECIFIED,
     URL,
     EXECUTABLE,
     IP_RANGE,
 }
-

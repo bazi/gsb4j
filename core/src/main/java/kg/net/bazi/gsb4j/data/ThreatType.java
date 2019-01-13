@@ -13,37 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kg.net.bazi.gsb4j.data;
 
+package kg.net.bazi.gsb4j.data;
 
 import java.util.EnumSet;
 import java.util.Set;
-
 
 /**
  * Types of threats.
  *
  * @author azilet
  */
-public enum ThreatType
-{
+public enum ThreatType {
     THREAT_TYPE_UNSPECIFIED,
     MALWARE,
     SOCIAL_ENGINEERING,
     UNWANTED_SOFTWARE,
     POTENTIALLY_HARMFUL_APPLICATION;
 
-
     /**
      * Gets all known threat types.
      *
      * @return set of known threat types
      */
-    public static Set<ThreatType> getAll()
-    {
-        Set<ThreatType> all = EnumSet.allOf( ThreatType.class );
-        all.remove( THREAT_TYPE_UNSPECIFIED );
+    public static Set<ThreatType> getAll() {
+        Set<ThreatType> all = EnumSet.allOf(ThreatType.class);
+        all.remove(THREAT_TYPE_UNSPECIFIED);
         return all;
     }
 }
-

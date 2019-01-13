@@ -16,14 +16,12 @@
 
 package kg.net.bazi.gsb4j.properties;
 
+import com.google.inject.AbstractModule;
 
 import java.util.Properties;
 
-import com.google.inject.AbstractModule;
-
 import kg.net.bazi.gsb4j.Gsb4j;
 import kg.net.bazi.gsb4j.Gsb4jBinding;
-
 
 /**
  * Guice module to initialize bindings related to gsb4j properties.
@@ -33,30 +31,23 @@ import kg.net.bazi.gsb4j.Gsb4jBinding;
  *
  * @author <a href="https://github.com/bazi">bazi</a>
  */
-public class Gsb4jPropertiesModule extends AbstractModule
-{
+public class Gsb4jPropertiesModule extends AbstractModule {
 
     private final Properties properties;
-
 
     /**
      * Constructs module with properties instance to be used as a source of configuration property values.
      *
      * @param properties properties to be used as a source of values
      */
-    public Gsb4jPropertiesModule( Properties properties )
-    {
+    public Gsb4jPropertiesModule(Properties properties) {
         this.properties = properties;
     }
 
-
     @Override
-    protected void configure()
-    {
-        bind( Properties.class ).annotatedWith( Gsb4jBinding.class ).toInstance( properties );
-        bind( Gsb4jProperties.class ).to( Gsb4jFileProperties.class );
+    protected void configure() {
+        bind(Properties.class).annotatedWith(Gsb4jBinding.class).toInstance(properties);
+        bind(Gsb4jProperties.class).to(Gsb4jFileProperties.class);
     }
 
-
 }
-

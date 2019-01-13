@@ -16,9 +16,7 @@
 
 package kg.net.bazi.gsb4j.data;
 
-
 import java.util.Objects;
-
 
 /**
  * POJO to represent an individual threat; for example, a malicious URL or its hash representation. Only one of these
@@ -26,73 +24,54 @@ import java.util.Objects;
  *
  * @author azilet
  */
-public class ThreatEntry
-{
+public class ThreatEntry {
+
     private String hash;
     private String url;
     private String digest;
 
-
-    public String getHash()
-    {
+    public String getHash() {
         return hash;
     }
 
-
-    public void setHash( String hash )
-    {
+    public void setHash(String hash) {
         this.hash = hash;
     }
 
-
-    public String getUrl()
-    {
+    public String getUrl() {
         return url;
     }
 
-
-    public void setUrl( String url )
-    {
+    public void setUrl(String url) {
         this.url = url;
     }
 
-
-    public String getDigest()
-    {
+    public String getDigest() {
         return digest;
     }
 
-
-    public void setDigest( String digest )
-    {
+    public void setDigest(String digest) {
         this.digest = digest;
     }
 
-
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode( this.hash );
-        hash = 97 * hash + Objects.hashCode( this.url );
-        hash = 97 * hash + Objects.hashCode( this.digest );
+        hash = 97 * hash + Objects.hashCode(this.hash);
+        hash = 97 * hash + Objects.hashCode(this.url);
+        hash = 97 * hash + Objects.hashCode(this.digest);
         return hash;
     }
 
-
     @Override
-    public boolean equals( Object obj )
-    {
-        if ( obj instanceof ThreatEntry )
-        {
-            ThreatEntry other = ( ThreatEntry ) obj;
-            return Objects.equals( this.hash, other.hash )
-                    && Objects.equals( this.url, other.url )
-                    && Objects.equals( this.digest, other.digest );
+    public boolean equals(Object obj) {
+        if (obj instanceof ThreatEntry) {
+            ThreatEntry other = (ThreatEntry) obj;
+            return Objects.equals(this.hash, other.hash)
+                && Objects.equals(this.url, other.url)
+                && Objects.equals(this.digest, other.digest);
         }
         return true;
     }
 
-
 }
-

@@ -16,14 +16,12 @@
 
 package kg.net.bazi.gsb4j;
 
+import com.google.inject.BindingAnnotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.google.inject.BindingAnnotation;
-
 
 /**
  * Binding annotation for Gsb4j specific bindings of types publicly available from standard JDK.
@@ -35,9 +33,7 @@ import com.google.inject.BindingAnnotation;
  * @author azilet
  */
 @BindingAnnotation
-@Retention( RetentionPolicy.RUNTIME )
-@Target( { ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD } )
-public @interface Gsb4jBinding
-{
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
+public @interface Gsb4jBinding {
 }
-

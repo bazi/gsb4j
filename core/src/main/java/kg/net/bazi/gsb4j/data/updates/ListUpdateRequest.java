@@ -13,87 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kg.net.bazi.gsb4j.data.updates;
 
+package kg.net.bazi.gsb4j.data.updates;
 
 import kg.net.bazi.gsb4j.data.PlatformType;
 import kg.net.bazi.gsb4j.data.ThreatEntryType;
 import kg.net.bazi.gsb4j.data.ThreatType;
-
 
 /**
  * A single list update request POJO.
  *
  * @author azilet
  */
-public class ListUpdateRequest
-{
+public class ListUpdateRequest {
+
     private ThreatType threatType;
     private PlatformType platformType;
     private ThreatEntryType threatEntryType;
     private String state;
     private Constraints constraints;
 
-
-    public ThreatType getThreatType()
-    {
+    public ThreatType getThreatType() {
         return threatType;
     }
 
-
-    public void setThreatType( ThreatType threatType )
-    {
+    public void setThreatType(ThreatType threatType) {
         this.threatType = threatType;
     }
 
-
-    public PlatformType getPlatformType()
-    {
+    public PlatformType getPlatformType() {
         return platformType;
     }
 
-
-    public void setPlatformType( PlatformType platformType )
-    {
+    public void setPlatformType(PlatformType platformType) {
         this.platformType = platformType;
     }
 
-
-    public ThreatEntryType getThreatEntryType()
-    {
+    public ThreatEntryType getThreatEntryType() {
         return threatEntryType;
     }
 
-
-    public void setThreatEntryType( ThreatEntryType threatEntryType )
-    {
+    public void setThreatEntryType(ThreatEntryType threatEntryType) {
         this.threatEntryType = threatEntryType;
     }
 
-
-    public String getState()
-    {
+    public String getState() {
         return state;
     }
 
-
-    public void setState( String state )
-    {
+    public void setState(String state) {
         this.state = state;
     }
 
-
-    public Constraints getConstraints()
-    {
+    public Constraints getConstraints() {
         return constraints;
     }
 
-
-    public void setConstraints( Constraints constraints )
-    {
+    public void setConstraints(Constraints constraints) {
         this.constraints = constraints;
     }
 
-
 }
-

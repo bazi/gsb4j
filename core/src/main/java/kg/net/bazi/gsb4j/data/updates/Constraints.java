@@ -13,72 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kg.net.bazi.gsb4j.data.updates;
 
-
 import java.util.Arrays;
-
 
 /**
  * Update request constraints POJO.
  *
  * @author azilet
  */
-public class Constraints
-{
+public class Constraints {
+
     private int maxUpdateEntries;
     private int maxDatabaseEntries;
     private String region;
     private CompressionType[] supportedCompressions;
 
-
-    public int getMaxUpdateEntries()
-    {
+    public int getMaxUpdateEntries() {
         return maxUpdateEntries;
     }
 
-
-    public void setMaxUpdateEntries( int maxUpdateEntries )
-    {
+    public void setMaxUpdateEntries(int maxUpdateEntries) {
         this.maxUpdateEntries = maxUpdateEntries;
     }
 
-
-    public int getMaxDatabaseEntries()
-    {
+    public int getMaxDatabaseEntries() {
         return maxDatabaseEntries;
     }
 
-
-    public void setMaxDatabaseEntries( int maxDatabaseEntries )
-    {
+    public void setMaxDatabaseEntries(int maxDatabaseEntries) {
         this.maxDatabaseEntries = maxDatabaseEntries;
     }
 
-
-    public String getRegion()
-    {
+    public String getRegion() {
         return region;
     }
 
-
-    public void setRegion( String region )
-    {
+    public void setRegion(String region) {
         this.region = region;
     }
 
-
-    public CompressionType[] getSupportedCompressions()
-    {
-        return Arrays.copyOf( supportedCompressions, supportedCompressions.length );
+    public CompressionType[] getSupportedCompressions() {
+        return Arrays.copyOf(supportedCompressions, supportedCompressions.length);
     }
 
-
-    public void setSupportedCompressions( CompressionType[] supportedCompressions )
-    {
-        this.supportedCompressions = Arrays.copyOf( supportedCompressions, supportedCompressions.length );
+    public void setSupportedCompressions(CompressionType[] supportedCompressions) {
+        this.supportedCompressions = Arrays.copyOf(supportedCompressions, supportedCompressions.length);
     }
-
 
 }
-

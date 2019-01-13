@@ -16,6 +16,7 @@
 
 package kg.net.bazi.gsb4j.api;
 
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -30,16 +31,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-
 import kg.net.bazi.gsb4j.Gsb4j;
 import kg.net.bazi.gsb4j.cache.ThreatListDescriptorsCache;
 import kg.net.bazi.gsb4j.data.ThreatEntry;
@@ -50,16 +41,22 @@ import kg.net.bazi.gsb4j.db.LocalDatabase;
 import kg.net.bazi.gsb4j.url.Canonicalization;
 import kg.net.bazi.gsb4j.url.Hashing;
 import kg.net.bazi.gsb4j.url.SuffixPrefixExpressions;
-
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Interface to Update API.
  *
  * @author azilet
  */
-class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
-{
-    private static final Logger LOGGER = LoggerFactory.getLogger( UpdateApi.class );
+class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateApi.class);
 
     @Inject
     private Canonicalization canonicalizer;
@@ -82,89 +79,67 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
     @Inject
     private StateHolder stateHolder;
 
-
     @Override
-    public ThreatMatch check( String url )
-    {
-        try
-        {
-            Set<UrlHashCollision> collisions = findHashPrefixCollisions( url );
-            if ( !collisions.isEmpty() )
-            {
-                List<ThreatMatch> threats = checkCollisions( collisions );
-                if ( !threats.isEmpty() )
-                {
-                    return selectMoreGenericThreat( threats );
+    public ThreatMatch check(String url) {
+        try {
+            Set<UrlHashCollision> collisions = findHashPrefixCollisions(url);
+            if (!collisions.isEmpty()) {
+                List<ThreatMatch> threats = checkCollisions(collisions);
+                if (!threats.isEmpty()) {
+                    return selectMoreGenericThreat(threats);
                 }
+            } else {
+                LOGGER.info("URL hash not in local database: {}", url);
             }
-            else
-            {
-                LOGGER.info( "URL hash not in local database: {}", url );
-            }
-        }
-        catch ( IOException | DecoderException ex )
-        {
-            LOGGER.error( "Failed to check in Safe Browsing lists", ex );
+        } catch (IOException | DecoderException ex) {
+            LOGGER.error("Failed to check in Safe Browsing lists", ex);
         }
         return null;
     }
 
-
     @Override
-    Logger getLogger()
-    {
+    Logger getLogger() {
         return LOGGER;
     }
 
-
-    private List<ThreatMatch> checkCollisions( Set<UrlHashCollision> collisions ) throws IOException, DecoderException
-    {
+    private List<ThreatMatch> checkCollisions(Set<UrlHashCollision> collisions) throws IOException, DecoderException {
         List<ThreatMatch> threats = new ArrayList<>();
 
         // first, check for unexpired positive cache hits
-        for ( UrlHashCollision collision : collisions )
-        {
-            ThreatMatch match = cache.getPositive( collision.fullHash, collision.descriptor, false );
-            if ( match != null )
-            {
-                threats.add( match );
+        for (UrlHashCollision collision : collisions) {
+            ThreatMatch match = cache.getPositive(collision.fullHash, collision.descriptor, false);
+            if (match != null) {
+                threats.add(match);
             }
         }
         // if there are unexpired positive cache entries, then it is unsafe URL
-        if ( !threats.isEmpty() )
-        {
-            LOGGER.info( "Unexpired positive cache hit found" );
+        if (!threats.isEmpty()) {
+            LOGGER.info("Unexpired positive cache hit found");
             return threats;
         }
 
         // check if we have expired positive cache entries
-        for ( UrlHashCollision collision : collisions )
-        {
-            ThreatMatch match = cache.getPositive( collision.fullHash, collision.descriptor, true );
-            if ( match != null )
-            {
-                LOGGER.info( "Expired positive cache hit found. Sending full hash request." );
-                return requestFullHashes( collisions );
+        for (UrlHashCollision collision : collisions) {
+            ThreatMatch match = cache.getPositive(collision.fullHash, collision.descriptor, true);
+            if (match != null) {
+                LOGGER.info("Expired positive cache hit found. Sending full hash request.");
+                return requestFullHashes(collisions);
             }
         }
 
         Iterator<UrlHashCollision> it = collisions.iterator();
-        while ( it.hasNext() )
-        {
+        while (it.hasNext()) {
             UrlHashCollision collision = it.next();
-            if ( cache.hasNegative( collision.hashPrefix, collision.descriptor ) )
-            {
+            if (cache.hasNegative(collision.hashPrefix, collision.descriptor)) {
                 it.remove();
             }
         }
-        if ( collisions.isEmpty() )
-        {
-            LOGGER.info( "Hash prefixes are in a negative cache. Considering URL as safe." );
+        if (collisions.isEmpty()) {
+            LOGGER.info("Hash prefixes are in a negative cache. Considering URL as safe.");
             return Collections.emptyList();
         }
-        return requestFullHashes( collisions );
+        return requestFullHashes(collisions);
     }
-
 
     /**
      * This method checks hash prefixes of the URL whether they are listed in the local database and returns all
@@ -172,191 +147,155 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi
      *
      * @param url URL string to check
      * @return collection of hash prefix collisions in local database; never {@code null}
-     * @throws IOException
+     * @throws IOException when local database IO error occurs
      */
-    private Set<UrlHashCollision> findHashPrefixCollisions( String url ) throws IOException
-    {
-        String canonicalized = canonicalizer.canonicalize( url );
-        Set<String> expressions = expressionGenerator.makeExpressions( canonicalized );
+    private Set<UrlHashCollision> findHashPrefixCollisions(String url) throws IOException {
+        String canonicalized = canonicalizer.canonicalize(url);
+        Set<String> expressions = expressionGenerator.makeExpressions(canonicalized);
 
         Set<UrlHashCollision> collisions = new HashSet<>();
-        for ( int n = Hashing.MIN_SIGNIFICANT_BYTES; n < Hashing.MAX_SIGNIFICANT_BYTES; n++ )
-        {
-            for ( String expression : expressions )
-            {
-                String prefix = hashing.computeHashPrefix( expression, n );
-                List<ThreatListDescriptor> lists = presentInThreatLists( prefix );
-                for ( ThreatListDescriptor descriptor : lists )
-                {
+        for (int n = Hashing.MIN_SIGNIFICANT_BYTES; n < Hashing.MAX_SIGNIFICANT_BYTES; n++) {
+            for (String expression : expressions) {
+                String prefix = hashing.computeHashPrefix(expression, n);
+                List<ThreatListDescriptor> lists = presentInThreatLists(prefix);
+                for (ThreatListDescriptor descriptor : lists) {
                     UrlHashCollision collision = new UrlHashCollision();
                     collision.hashPrefix = prefix;
-                    collision.fullHash = hashing.computeFullHash( expression );
+                    collision.fullHash = hashing.computeFullHash(expression);
                     collision.descriptor = descriptor;
-                    collisions.add( collision );
+                    collisions.add(collision);
                 }
             }
         }
         return collisions;
     }
 
-
-    private List<ThreatListDescriptor> presentInThreatLists( String prefix ) throws IOException
-    {
+    private List<ThreatListDescriptor> presentInThreatLists(String prefix) throws IOException {
         List<ThreatListDescriptor> lists = new ArrayList<>();
-        for ( ThreatListDescriptor descriptor : descriptorsCache.get() )
-        {
-            if ( localDatabase.contains( prefix, descriptor ) )
-            {
-                lists.add( descriptor );
+        for (ThreatListDescriptor descriptor : descriptorsCache.get()) {
+            if (localDatabase.contains(prefix, descriptor)) {
+                lists.add(descriptor);
             }
         }
         return lists;
     }
 
-
-    private List<ThreatMatch> requestFullHashes( Set<UrlHashCollision> collisions ) throws DecoderException, IOException
-    {
-        if ( !stateHolder.isFindAllowed() )
-        {
-            LOGGER.info( "Skipping full hash find requests to API due to wait duration" );
+    private List<ThreatMatch> requestFullHashes(Set<UrlHashCollision> collisions) throws DecoderException, IOException {
+        if (!stateHolder.isFindAllowed()) {
+            LOGGER.info("Skipping full hash find requests to API due to wait duration");
             return Collections.emptyList();
         }
 
         List<String> clientStates = new ArrayList<>();
-        for ( ThreatListDescriptor descriptor : descriptorsCache.get() )
-        {
-            clientStates.add( stateHolder.getState( descriptor ) );
+        for (ThreatListDescriptor descriptor : descriptorsCache.get()) {
+            clientStates.add(stateHolder.getState(descriptor));
         }
 
         // prepare set of included threat lists to be used for negative caching
         Set<ThreatListDescriptor> lists = new HashSet<>();
-        for ( UrlHashCollision collision : collisions )
-        {
-            lists.add( collision.descriptor );
+        for (UrlHashCollision collision : collisions) {
+            lists.add(collision.descriptor);
         }
 
         ThreatInfo threatInfo = new ThreatInfo();
         threatInfo.getThreatTypes().clear();
         threatInfo.getPlatformTypes().clear();
-        for ( UrlHashCollision collision : collisions )
-        {
-            threatInfo.getThreatTypes().add( collision.descriptor.getThreatType() );
-            threatInfo.getPlatformTypes().add( collision.descriptor.getPlatformType() );
-            threatInfo.getThreatEntries().add( makeThreatEntry( collision.hashPrefix ) );
+        for (UrlHashCollision collision : collisions) {
+            threatInfo.getThreatTypes().add(collision.descriptor.getThreatType());
+            threatInfo.getPlatformTypes().add(collision.descriptor.getPlatformType());
+            threatInfo.getThreatEntries().add(makeThreatEntry(collision.hashPrefix));
         }
 
-        Map<String, Object> payload = wrapPayload( "clientStates", clientStates );
-        payload.put( "threatInfo", threatInfo );
+        Map<String, Object> payload = wrapPayload("clientStates", clientStates);
+        payload.put("threatInfo", threatInfo);
 
         ApiResponse apiResponse = null;
-        HttpUriRequest req = makeRequest( HttpPost.METHOD_NAME, "fullHashes:find", payload );
-        try ( CloseableHttpResponse resp = httpClient.execute( req );
-              Reader reader = getResponseReader( resp ) )
-        {
+        HttpUriRequest req = makeRequest(HttpPost.METHOD_NAME, "fullHashes:find", payload);
+        try ( CloseableHttpResponse resp = httpClient.execute(req);
+             Reader reader = getResponseReader(resp)) {
             // TODO: back-off on status codes other than 200
-            apiResponse = gson.fromJson( reader, ApiResponse.class );
-        }
-        finally
-        {
-            if ( apiResponse == null )
-            {
-                throw new IllegalStateException( "Invalid payload from API" );
+            apiResponse = gson.fromJson(reader, ApiResponse.class);
+        } finally {
+            if (apiResponse == null) {
+                throw new IllegalStateException("Invalid payload from API");
             }
-            if ( apiResponse.minimumWaitDuration != null )
-            {
-                long duration = Gsb4j.durationToMillis( apiResponse.minimumWaitDuration );
-                stateHolder.setMinWaitDurationForFinds( duration );
+            if (apiResponse.minimumWaitDuration != null) {
+                long duration = Gsb4j.durationToMillis(apiResponse.minimumWaitDuration);
+                stateHolder.setMinWaitDurationForFinds(duration);
             }
         }
 
-        List<ThreatMatch> responseMatches = Optional.ofNullable( apiResponse.matches ).orElse( Collections.emptyList() );
+        List<ThreatMatch> responseMatches = Optional.ofNullable(apiResponse.matches).orElse(Collections.emptyList());
         List<ThreatMatch> matches = new ArrayList<>();
-        for ( ThreatMatch match : responseMatches )
-        {
-            boolean fullHashMatchFound = collisions.removeIf( c -> c.matches( match ) );
-            if ( fullHashMatchFound )
-            {
-                matches.add( match );
-                cache.putPositive( match );
+        for (ThreatMatch match : responseMatches) {
+            boolean fullHashMatchFound = collisions.removeIf(c -> c.matches(match));
+            if (fullHashMatchFound) {
+                matches.add(match);
+                cache.putPositive(match);
             }
         }
 
-        if ( apiResponse.negativeCacheDuration != null )
-        {
-            long duration = Gsb4j.durationToMillis( apiResponse.negativeCacheDuration );
-            collisions.forEach( c -> cache.putNegative( c.hashPrefix, duration, lists ) );
+        if (apiResponse.negativeCacheDuration != null) {
+            long duration = Gsb4j.durationToMillis(apiResponse.negativeCacheDuration);
+            collisions.forEach(c -> cache.putNegative(c.hashPrefix, duration, lists));
         }
 
-        LOGGER.info( "Response to full hash request: {}", gson.toJson( matches ) );
+        LOGGER.info("Response to full hash request: {}", gson.toJson(matches));
         return matches;
     }
 
+    private ThreatEntry makeThreatEntry(String prefix) throws DecoderException {
+        byte[] bytes = Hex.decodeHex(prefix.toCharArray());
+        String base64encoded = Base64.getEncoder().encodeToString(bytes);
 
-    private ThreatEntry makeThreatEntry( String prefix ) throws DecoderException
-    {
-        byte[] bytes = Hex.decodeHex( prefix.toCharArray() );
-        String base64encoded = Base64.getEncoder().encodeToString( bytes );
-
-        ThreatEntry e = new ThreatEntry();
-        e.setHash( base64encoded );
-        return e;
+        ThreatEntry threatEntry = new ThreatEntry();
+        threatEntry.setHash(base64encoded);
+        return threatEntry;
     }
-
 
     /**
      * Class to represent a hit in the local database for a hash prefix.
      */
-    private static class UrlHashCollision
-    {
+    private static class UrlHashCollision {
+
         String hashPrefix;
         String fullHash;
         ThreatListDescriptor descriptor;
 
-
         @Override
-        public int hashCode()
-        {
-            return Objects.hash( this.fullHash, this.descriptor );
+        public int hashCode() {
+            return Objects.hash(this.fullHash, this.descriptor);
         }
 
-
         @Override
-        public boolean equals( Object obj )
-        {
-            if ( obj instanceof UrlHashCollision )
-            {
-                UrlHashCollision other = ( UrlHashCollision ) obj;
-                return Objects.equals( this.fullHash, other.fullHash )
-                        && Objects.equals( this.descriptor, other.descriptor );
+        public boolean equals(Object obj) {
+            if (obj instanceof UrlHashCollision) {
+                UrlHashCollision other = (UrlHashCollision) obj;
+                return Objects.equals(this.fullHash, other.fullHash)
+                    && Objects.equals(this.descriptor, other.descriptor);
             }
             return false;
         }
 
-
-        boolean matches( ThreatMatch match )
-        {
+        boolean matches(ThreatMatch match) {
             boolean descriptorMatch = match.getThreatType() == descriptor.getThreatType()
-                    && match.getPlatformType() == descriptor.getPlatformType()
-                    && match.getThreatEntryType() == descriptor.getThreatEntryType();
-            if ( descriptorMatch )
-            {
-                byte[] bytes = Base64.getDecoder().decode( match.getThreat().getHash() );
-                String fullHashRemote = Hex.encodeHexString( bytes );
-                return fullHash.equals( fullHashRemote );
+                && match.getPlatformType() == descriptor.getPlatformType()
+                && match.getThreatEntryType() == descriptor.getThreatEntryType();
+            if (descriptorMatch) {
+                byte[] bytes = Base64.getDecoder().decode(match.getThreat().getHash());
+                String fullHashRemote = Hex.encodeHexString(bytes);
+                return fullHash.equals(fullHashRemote);
             }
             return false;
         }
 
     }
 
+    private static class ApiResponse {
 
-    private static class ApiResponse
-    {
         List<ThreatMatch> matches;
         String minimumWaitDuration;
         String negativeCacheDuration;
     }
 
-
 }
-

@@ -16,9 +16,7 @@
 
 package kg.net.bazi.gsb4j.api;
 
-
 import kg.net.bazi.gsb4j.data.ThreatMatch;
-
 
 /**
  * Safe Browsing API interface.
@@ -27,8 +25,7 @@ import kg.net.bazi.gsb4j.data.ThreatMatch;
  *
  * @author azilet
  */
-public interface SafeBrowsingApi
-{
+public interface SafeBrowsingApi {
 
     /**
      * Name to identify Lookup API client implementation.
@@ -40,14 +37,12 @@ public interface SafeBrowsingApi
      */
     String UPDATE_API = "update";
 
-
     /**
      * Checks the supplied URL if it is in the threat lists of the Google Safe Browsing API.
      *
      * @param url URL to check
      * @return threat match if URL is found in one of threat lists; {@code null} otherwise which means URL is safe
      */
-    ThreatMatch check( String url );
+    ThreatMatch check(String url);
 
 }
-

@@ -16,12 +16,10 @@
 
 package kg.net.bazi.gsb4j.util;
 
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-
 
 /**
  * Simple percent encoding class. This percent encoding is basically a URL encoding that is performed by
@@ -30,49 +28,37 @@ import java.nio.charset.StandardCharsets;
  *
  * @author azilet
  */
-public class PercentEncoder
-{
-
+public class PercentEncoder {
 
     /**
-     * Encodes selected characters in a supplied string to percent encoding.
+     * Encodes supplied string in percent encoding.
      * <p>
      * NOTE: hexadecimal digits are in upper case
      *
-     * @param s string to encode
+     * @param str string to encode
      * @return encoded string
      */
-    public String encode( String s )
-    {
-        try
-        {
-            String urlEncoded = URLEncoder.encode( s, StandardCharsets.UTF_8.name() );
-            return urlEncoded.replace( "+", "%20" );
-        }
-        catch ( UnsupportedEncodingException ex )
-        {
-            throw new IllegalStateException( "Shall not happen", ex );
+    public String encode(String str) {
+        try {
+            String urlEncoded = URLEncoder.encode(str, StandardCharsets.UTF_8.name());
+            return urlEncoded.replace("+", "%20");
+        } catch (UnsupportedEncodingException ex) {
+            throw new IllegalStateException("Shall not happen", ex);
         }
     }
-
 
     /**
      * Decodes percent encoded string.
      *
-     * @param s string to decode
+     * @param str string to decode
      * @return decoded string
      */
-    public String decode( String s )
-    {
-        try
-        {
-            return URLDecoder.decode( s, StandardCharsets.UTF_8.name() );
-        }
-        catch ( UnsupportedEncodingException ex )
-        {
-            throw new IllegalStateException( "Shall not happen", ex );
+    public String decode(String str) {
+        try {
+            return URLDecoder.decode(str, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException ex) {
+            throw new IllegalStateException("Shall not happen", ex);
         }
     }
 
 }
-

@@ -16,23 +16,20 @@
 
 package kg.net.bazi.gsb4j.properties;
 
+import com.google.inject.ImplementedBy;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.google.inject.ImplementedBy;
-
 import kg.net.bazi.gsb4j.Gsb4j;
-
 
 /**
  * Interface to get application specific properties.
  *
  * @author <a href="https://github.com/bazi">bazi</a>
  */
-@ImplementedBy( Gsb4jSystemProperties.class )
-public interface Gsb4jProperties
-{
+@ImplementedBy(Gsb4jSystemProperties.class)
+public interface Gsb4jProperties {
 
     /**
      * Configuration property name for API key.
@@ -47,14 +44,12 @@ public interface Gsb4jProperties
      */
     String DATA_DIRECTORY = "data.dir";
 
-
     /**
      * Gets API key.
      *
      * @return API key
      */
     String getApiKey();
-
 
     /**
      * Gets HTTP referrer value accepted by API.
@@ -63,7 +58,6 @@ public interface Gsb4jProperties
      */
     String getApiHttpReferrer();
 
-
     /**
      * Gets directory for local data files.
      *
@@ -71,17 +65,14 @@ public interface Gsb4jProperties
      */
     Path getDataDirectory();
 
-
     /**
      * Gets default local data directory. This is directory in user's home directory.
      *
      * @return path to default local data directory
      */
-    static Path getDefaultDataDirectory()
-    {
-        String homeDir = System.getProperty( "user.home" );
-        return Paths.get( homeDir, Gsb4j.GSB4J );
+    static Path getDefaultDataDirectory() {
+        String homeDir = System.getProperty("user.home");
+        return Paths.get(homeDir, Gsb4j.GSB4J);
     }
 
 }
-

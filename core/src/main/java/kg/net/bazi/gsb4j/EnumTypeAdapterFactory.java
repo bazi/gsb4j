@@ -16,12 +16,6 @@
 
 package kg.net.bazi.gsb4j;
 
-
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -30,6 +24,10 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Type adapter factory that creates type adapters for enums. Type adapters of this factory serialize and deserialize
@@ -37,58 +35,43 @@ import com.google.gson.stream.JsonWriter;
  *
  * @author azilet
  */
-class EnumTypeAdapterFactory implements TypeAdapterFactory
-{
-    private static final Logger LOGGER = LoggerFactory.getLogger( EnumTypeAdapterFactory.class );
+class EnumTypeAdapterFactory implements TypeAdapterFactory {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnumTypeAdapterFactory.class);
 
     @Override
-    public <T> TypeAdapter<T> create( Gson gson, TypeToken<T> type )
-    {
-        Class<T> rawType = ( Class<T> ) type.getRawType();
-        if ( !rawType.isEnum() )
-        {
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+        Class<T> rawType = (Class<T>) type.getRawType();
+        if (!rawType.isEnum()) {
             return null;
         }
 
-        return new TypeAdapter<T>()
-        {
+        return new TypeAdapter<T>() {
             @Override
-            public void write( JsonWriter out, T value ) throws IOException
-            {
-                if ( value != null )
-                {
-                    out.value( value.toString() );
-                }
-                else
-                {
+            public void write(JsonWriter out, T value) throws IOException {
+                if (value != null) {
+                    out.value(value.toString());
+                } else {
                     out.nullValue();
                 }
             }
 
-
             @Override
-            public T read( JsonReader in ) throws IOException
-            {
-                if ( in.peek() == JsonToken.NULL )
-                {
+            public T read(JsonReader in) throws IOException {
+                if (in.peek() == JsonToken.NULL) {
                     in.nextNull();
                     return null;
                 }
                 String str = in.nextString();
-                for ( T item : rawType.getEnumConstants() )
-                {
-                    if ( item.toString().equals( str ) )
-                    {
+                for (T item : rawType.getEnumConstants()) {
+                    if (item.toString().equals(str)) {
                         return item;
                     }
                 }
-                LOGGER.warn( "Unknown enum name for {}: {}", rawType.getSimpleName(), str );
+                LOGGER.warn("Unknown enum name for {}: {}", rawType.getSimpleName(), str);
                 return null;
             }
         };
     }
 
-
 }
-

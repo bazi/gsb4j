@@ -16,7 +16,6 @@
 
 package kg.net.bazi.gsb4j.http;
 
-
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,32 +23,27 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.servlet.ServletModule;
 
-
 /**
  * Guice module to initialize servlet bindings.
  *
  * @author bazi
  */
-class Gsb4jServletModule extends ServletModule
-{
+class Gsb4jServletModule extends ServletModule {
+
     @Override
-    protected void configureServlets()
-    {
-        bind( LookupApiServlet.class ).asEagerSingleton();
-        bind( UpdateApiServlet.class ).asEagerSingleton();
+    protected void configureServlets() {
+        bind(LookupApiServlet.class).asEagerSingleton();
+        bind(UpdateApiServlet.class).asEagerSingleton();
 
-        serve( "/api/lookup" ).with( LookupApiServlet.class );
-        serve( "/api/update" ).with( UpdateApiServlet.class );
+        serve("/api/lookup").with(LookupApiServlet.class);
+        serve("/api/update").with(UpdateApiServlet.class);
     }
-
 
     @Provides
     @Singleton
-    Gson makeGson()
-    {
+    Gson makeGson() {
         return new GsonBuilder()
-                .setFieldNamingPolicy( FieldNamingPolicy.IDENTITY )
-                .create();
+            .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
+            .create();
     }
 }
-

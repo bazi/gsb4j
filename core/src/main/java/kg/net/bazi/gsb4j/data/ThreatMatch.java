@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package kg.net.bazi.gsb4j.data;
 
-
 import java.util.List;
-
 
 /**
  * POJO to represent a match when checking a threat entry in the Safe Browsing threat lists.
  *
  * @author azilet
  */
-public class ThreatMatch
-{
+public class ThreatMatch {
+
     private ThreatType threatType;
     private PlatformType platformType;
     private ThreatEntryType threatEntryType;
@@ -35,145 +34,101 @@ public class ThreatMatch
 
     private transient long timestamp;
 
-
-    public ThreatType getThreatType()
-    {
+    public ThreatType getThreatType() {
         return threatType;
     }
 
-
-    public void setThreatType( ThreatType threatType )
-    {
+    public void setThreatType(ThreatType threatType) {
         this.threatType = threatType;
     }
 
-
-    public PlatformType getPlatformType()
-    {
+    public PlatformType getPlatformType() {
         return platformType;
     }
 
-
-    public void setPlatformType( PlatformType platformType )
-    {
+    public void setPlatformType(PlatformType platformType) {
         this.platformType = platformType;
     }
 
-
-    public ThreatEntryType getThreatEntryType()
-    {
+    public ThreatEntryType getThreatEntryType() {
         return threatEntryType;
     }
 
-
-    public void setThreatEntryType( ThreatEntryType threatEntryType )
-    {
+    public void setThreatEntryType(ThreatEntryType threatEntryType) {
         this.threatEntryType = threatEntryType;
     }
 
-
-    public ThreatEntry getThreat()
-    {
+    public ThreatEntry getThreat() {
         return threat;
     }
 
-
-    public void setThreat( ThreatEntry threat )
-    {
+    public void setThreat(ThreatEntry threat) {
         this.threat = threat;
     }
 
-
-    public ThreatEntryMetadata getThreatEntryMetadata()
-    {
+    public ThreatEntryMetadata getThreatEntryMetadata() {
         return threatEntryMetadata;
     }
 
-
-    public void setThreatEntryMetadata( ThreatEntryMetadata threatEntryMetadata )
-    {
+    public void setThreatEntryMetadata(ThreatEntryMetadata threatEntryMetadata) {
         this.threatEntryMetadata = threatEntryMetadata;
     }
 
-
-    public String getCacheDuration()
-    {
+    public String getCacheDuration() {
         return cacheDuration;
     }
 
-
-    public void setCacheDuration( String cacheDuration )
-    {
+    public void setCacheDuration(String cacheDuration) {
         this.cacheDuration = cacheDuration;
     }
 
-
-    public long getTimestamp()
-    {
+    public long getTimestamp() {
         return timestamp;
     }
 
-
-    public void setTimestamp( long timestamp )
-    {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
-
 
     /**
      * The metadata associated with a specific threat entry.
      */
-    public static class ThreatEntryMetadata
-    {
+    public static class ThreatEntryMetadata {
+
         private List<MetadataEntry> entries;
 
-
-        public List<MetadataEntry> getEntries()
-        {
+        public List<MetadataEntry> getEntries() {
             return entries;
         }
 
-
-        public void setEntries( List<MetadataEntry> entries )
-        {
+        public void setEntries(List<MetadataEntry> entries) {
             this.entries = entries;
         }
     }
 
-
     /**
      * A single metadata entry.
      */
-    public static class MetadataEntry
-    {
+    public static class MetadataEntry {
+
         private String key;
         private String value;
 
-
-        public String getKey()
-        {
+        public String getKey() {
             return key;
         }
 
-
-        public void setKey( String key )
-        {
+        public void setKey(String key) {
             this.key = key;
         }
 
-
-        public String getValue()
-        {
+        public String getValue() {
             return value;
         }
 
-
-        public void setValue( String value )
-        {
+        public void setValue(String value) {
             this.value = value;
         }
     }
 
-
 }
-

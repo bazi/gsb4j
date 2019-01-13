@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kg.net.bazi.gsb4j.data;
 
+package kg.net.bazi.gsb4j.data;
 
 /**
  * Types of platforms.
  *
  * @author azilet
  */
-public enum PlatformType
-{
+public enum PlatformType {
     PLATFORM_TYPE_UNSPECIFIED,
     WINDOWS,
     LINUX,
@@ -33,4 +32,3 @@ public enum PlatformType
     ALL_PLATFORMS,
     CHROME,
 }
-

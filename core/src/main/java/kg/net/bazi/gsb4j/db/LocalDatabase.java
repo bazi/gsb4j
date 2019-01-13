@@ -16,20 +16,18 @@
 
 package kg.net.bazi.gsb4j.db;
 
-
 import java.io.IOException;
 import java.util.List;
 
 import kg.net.bazi.gsb4j.data.ThreatListDescriptor;
-
 
 /**
  * Local threats list database.
  *
  * @author azilet
  */
-public interface LocalDatabase
-{
+public interface LocalDatabase {
+
     /**
      * Loads hashes for the threat list descriptor.
      *
@@ -37,8 +35,7 @@ public interface LocalDatabase
      * @return hashes for the descriptor
      * @throws IOException when I/O errors occur
      */
-    List<String> load( ThreatListDescriptor descriptor ) throws IOException;
-
+    List<String> load(ThreatListDescriptor descriptor) throws IOException;
 
     /**
      * Saves hashes for the threat list descriptor.
@@ -47,8 +44,7 @@ public interface LocalDatabase
      * @param hashes hashes to save
      * @throws IOException when I/O errors occur
      */
-    void persist( ThreatListDescriptor descriptor, List<String> hashes ) throws IOException;
-
+    void persist(ThreatListDescriptor descriptor, List<String> hashes) throws IOException;
 
     /**
      * Checks if the hash exists in the local database for the supplied descriptor.
@@ -59,8 +55,7 @@ public interface LocalDatabase
      *
      * @throws IOException when IO errors occur
      */
-    boolean contains( String hash, ThreatListDescriptor descriptor ) throws IOException;
-
+    boolean contains(String hash, ThreatListDescriptor descriptor) throws IOException;
 
     /**
      * Clears local database data for the descriptor.
@@ -68,7 +63,6 @@ public interface LocalDatabase
      * @param descriptor descriptor to clear data for
      * @throws IOException when I/O errors occur
      */
-    void clear( ThreatListDescriptor descriptor ) throws IOException;
+    void clear(ThreatListDescriptor descriptor) throws IOException;
 
 }
-

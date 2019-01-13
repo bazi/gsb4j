@@ -16,12 +16,15 @@
 
 package kg.net.bazi.gsb4j.http;
 
+import com.google.inject.Injector;
+import com.google.inject.servlet.GuiceFilter;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
+import kg.net.bazi.gsb4j.Gsb4j;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
@@ -32,21 +35,14 @@ import org.eclipse.jetty.util.component.LifeCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Injector;
-import com.google.inject.servlet.GuiceFilter;
-
-import kg.net.bazi.gsb4j.Gsb4j;
-
-
 /**
  * Main class to start Gsb4j HTTP endpoint.
  *
  * @author bazi
  */
-public class Gsb4jHttpServer
-{
-    static final Logger LOGGER = LoggerFactory.getLogger( Logger.ROOT_LOGGER_NAME );
+public class Gsb4jHttpServer {
 
+    static final Logger LOGGER = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
     /**
      * Main method of Gsb4j HTTP module. Bootstraps DI and starts Jetty server. The port for the server can be supplied
@@ -55,83 +51,67 @@ public class Gsb4jHttpServer
      * @param args arguments not used
      * @throws InterruptedException when web server thread is interrupted
      */
-    public static void main( String[] args ) throws InterruptedException
-    {
-        int port = Integer.parseInt( System.getProperty( "http.port", "8080" ) );
+    public static void main(String[] args) throws InterruptedException {
+        int port = Integer.parseInt(System.getProperty("http.port", "8080"));
         Server server;
-        try
-        {
+        try {
             Gsb4j gsb4j = Gsb4j.bootstrap();
-            Injector injector = bootstrapDI( gsb4j );
+            Injector injector = bootstrapDependencyInjector(gsb4j);
 
-            server = initServer( port, injector );
-            server.addLifeCycleListener( new Gsb4jHttpLifeCycleListener( gsb4j ) );
-            server.setStopAtShutdown( true );
+            server = initServer(port, injector);
+            server.addLifeCycleListener(new Gsb4jHttpLifeCycleListener(gsb4j));
+            server.setStopAtShutdown(true);
             server.start();
-        }
-        catch ( Exception ex )
-        {
-            LOGGER.error( "Failed to start Gsb4j HTTP endpoint", ex );
-            System.exit( 1 );
+        } catch (Exception ex) {
+            LOGGER.error("Failed to start Gsb4j HTTP endpoint", ex);
+            System.exit(1);
             return;
         }
         server.join();
     }
 
-
-    private static Injector bootstrapDI( Gsb4j gsb4j )
-    {
+    private static Injector bootstrapDependencyInjector(Gsb4j gsb4j) {
         Injector injector = gsb4j.getInjector();
-        return injector.createChildInjector( Arrays.asList( new Gsb4jServletModule() ) );
+        return injector.createChildInjector(Arrays.asList(new Gsb4jServletModule()));
     }
 
-
-    private static Server initServer( int port, Injector injector )
-    {
+    private static Server initServer(int port, Injector injector) {
         Server server = new Server();
-        server.setStopAtShutdown( true );
+        server.setStopAtShutdown(true);
 
-        ServerConnector http = new ServerConnector( server );
-        http.setPort( port );
-        http.setIdleTimeout( 15000 );
+        ServerConnector http = new ServerConnector(server);
+        http.setPort(port);
+        http.setIdleTimeout(15000);
 
-        server.addConnector( http );
+        server.addConnector(http);
 
         GzipHandler gzipHandler = new GzipHandler();
-        server.setHandler( gzipHandler );
+        server.setHandler(gzipHandler);
 
         ServletContextHandler handler = new ServletContextHandler();
-        handler.setContextPath( "/gsb4j" );
+        handler.setContextPath("/gsb4j");
 
-        FilterHolder guiceFilter = new FilterHolder( injector.getInstance( GuiceFilter.class ) );
-        handler.addFilter( guiceFilter, "/*", EnumSet.allOf( DispatcherType.class ) );
+        FilterHolder guiceFilter = new FilterHolder(injector.getInstance(GuiceFilter.class));
+        handler.addFilter(guiceFilter, "/*", EnumSet.allOf(DispatcherType.class));
 
-        gzipHandler.setHandler( handler );
+        gzipHandler.setHandler(handler);
 
         // servlets can be added here but they will not be filtered by Guice
-
         return server;
     }
 
+    static class Gsb4jHttpLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycleListener {
 
-    static class Gsb4jHttpLifeCycleListener extends AbstractLifeCycle.AbstractLifeCycleListener
-    {
         private final Gsb4j gsb4j;
 
-
-        private Gsb4jHttpLifeCycleListener( Gsb4j gsb4j )
-        {
+        private Gsb4jHttpLifeCycleListener(Gsb4j gsb4j) {
             this.gsb4j = gsb4j;
         }
 
-
         @Override
-        public void lifeCycleStopped( LifeCycle event )
-        {
+        public void lifeCycleStopped(LifeCycle event) {
             gsb4j.shutdown();
         }
     }
 
-
 }
-

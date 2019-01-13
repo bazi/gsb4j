@@ -16,21 +16,18 @@
 
 package kg.net.bazi.gsb4j.util;
 
-
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
-
 
 /**
  * Rice compression handler.
  *
  * @author azilet
  */
-public class RiceCompression
-{
-    public static final int BYTE_BITS_SIZE = 8;
+public class RiceCompression {
 
+    public static final int BYTE_BITS_SIZE = 8;
 
     /**
      * Decompresses Rice coded bytes to integers. Note that bytes shall represent 4-byte values. That is the reason
@@ -40,63 +37,49 @@ public class RiceCompression
      * @param data compressed bytes
      * @return decompressed data as integers
      */
-    public List<Integer> decompress( int riceParameter, byte[] data )
-    {
-        BitSet bits = new BitSet( data.length * 8 );
+    public List<Integer> decompress(int riceParameter, byte[] data) {
+        BitSet bits = new BitSet(data.length * 8);
 
-        for ( int i = 0; i < data.length; i++ )
-        {
-            BitSet bitsOfByte = BitSet.valueOf( makeArrayOfByte( data[i] ) );
-            for ( int j = 0; j < bitsOfByte.size(); j++ )
-            {
-                bits.set( i * BYTE_BITS_SIZE + j, bitsOfByte.get( j ) );
+        for (int i = 0; i < data.length; i++) {
+            BitSet bitsOfByte = BitSet.valueOf(makeArrayOfByte(data[i]));
+            for (int j = 0; j < bitsOfByte.size(); j++) {
+                bits.set(i * BYTE_BITS_SIZE + j, bitsOfByte.get(j));
             }
         }
 
         List<Integer> result = new LinkedList<>();
-        for ( int n = 0; n < bits.size(); )
-        {
+        for (int n = 0; n < bits.size();) {
             int quotient = 0;
-            while ( bits.get( n++ ) )
-            {
+            while (bits.get(n++)) {
                 quotient++;
             }
 
             int remainder = 0;
-            BitSet range = bits.get( n, n + riceParameter );
-            for ( int i = 0; i < range.size(); i++ )
-            {
-                if ( range.get( i ) )
-                {
-                    remainder += ( 1 << range.size() - i - 1 );
+            BitSet range = bits.get(n, n + riceParameter);
+            for (int i = 0; i < range.size(); i++) {
+                if (range.get(i)) {
+                    remainder += (1 << range.size() - i - 1);
                 }
             }
             n += riceParameter;
 
-            int value = ( quotient << riceParameter ) + remainder;
-            result.add( value );
+            int value = (quotient << riceParameter) + remainder;
+            result.add(value);
         }
 
         // remove last elements that are zero
-        for ( int i = result.size() - 1; i >= 0; --i )
-        {
-            if ( result.get( i ) == 0 )
-            {
-                result.remove( i );
+        for (int i = result.size() - 1; i >= 0; --i) {
+            if (result.get(i) == 0) {
+                result.remove(i);
             }
         }
         return result;
     }
 
-
-    private byte[] makeArrayOfByte( byte b )
-    {
-        return new byte[]
-        {
-            b
+    private byte[] makeArrayOfByte(byte byteVal) {
+        return new byte[] {
+            byteVal
         };
     }
 
-
 }
-

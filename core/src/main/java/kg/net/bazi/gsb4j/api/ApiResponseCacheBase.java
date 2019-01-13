@@ -16,27 +16,22 @@
 
 package kg.net.bazi.gsb4j.api;
 
-
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import kg.net.bazi.gsb4j.Gsb4j;
 import kg.net.bazi.gsb4j.data.ThreatMatch;
 
-
 /**
  * Base class for threats cache implementations.
  *
  * @author azilet
  */
-abstract class ApiResponseCacheBase implements Runnable
-{
+abstract class ApiResponseCacheBase implements Runnable {
 
-    final void startMe( ScheduledExecutorService scheduler, long initialDelay, long delay, TimeUnit unit )
-    {
-        scheduler.scheduleWithFixedDelay( this, initialDelay, delay, unit );
+    final void startMe(ScheduledExecutorService scheduler, long initialDelay, long delay, TimeUnit unit) {
+        scheduler.scheduleWithFixedDelay(this, initialDelay, delay, unit);
     }
-
 
     /**
      * Checks if threat match has expired.
@@ -44,10 +39,8 @@ abstract class ApiResponseCacheBase implements Runnable
      * @param match threat match to check
      * @return {@code true} if match has expired; {@code false} otherwise
      */
-    boolean isExpired( ThreatMatch match )
-    {
+    boolean isExpired(ThreatMatch match) {
         String duration = match.getCacheDuration();
-        return match.getTimestamp() + Gsb4j.durationToMillis( duration ) < System.currentTimeMillis();
+        return match.getTimestamp() + Gsb4j.durationToMillis(duration) < System.currentTimeMillis();
     }
 }
-

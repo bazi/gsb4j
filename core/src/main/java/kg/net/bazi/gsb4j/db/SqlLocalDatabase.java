@@ -16,6 +16,7 @@
 
 package kg.net.bazi.gsb4j.db;
 
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -32,179 +33,135 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-
 import kg.net.bazi.gsb4j.Gsb4jBinding;
 import kg.net.bazi.gsb4j.data.ThreatListDescriptor;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SQL database backed implementation of {@link LocalDatabase}.
  *
  * @author azilet
  */
-class SqlLocalDatabase implements LocalDatabase
-{
-    private static final Logger LOGGER = LoggerFactory.getLogger( SqlLocalDatabase.class );
+class SqlLocalDatabase implements LocalDatabase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlLocalDatabase.class);
 
     private static final Set<ThreatListDescriptor> CREATED_TABLES = new HashSet<>();
     private static final Lock LOCK = new ReentrantLock();
 
-    final int BATCH_SIZE = 50 * 1000;
+    final int batchSize = 50 * 1000;
 
     @Inject
     @Gsb4jBinding
     DataSource dataSource;
 
-
     @Override
-    public List<String> load( ThreatListDescriptor descriptor ) throws IOException
-    {
-        checkTableForDescriptor( descriptor );
+    public List<String> load(ThreatListDescriptor descriptor) throws IOException {
+        checkTableForDescriptor(descriptor);
 
-        String s = "SELECT prefix FROM " + descriptor + " ORDER BY prefix";
+        String sql = "SELECT prefix FROM " + descriptor + " ORDER BY prefix";
         try ( Connection conn = dataSource.getConnection();
-              PreparedStatement ps = conn.prepareStatement( s ) )
-        {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             List<String> result = new LinkedList<>();
             ResultSet rs = ps.executeQuery();
-            while ( rs.next() )
-            {
-                result.add( rs.getString( 1 ) );
+            while (rs.next()) {
+                result.add(rs.getString(1));
             }
-            LOGGER.info( "Loaded {} items", result.size() );
+            LOGGER.info("Loaded {} items", result.size());
             return result;
-        }
-        catch ( SQLException ex )
-        {
-            throw new IOException( ex );
+        } catch (SQLException ex) {
+            throw new IOException(ex);
         }
     }
 
-
     @Override
-    public void persist( ThreatListDescriptor descriptor, List<String> hashes ) throws IOException
-    {
-        checkTableForDescriptor( descriptor );
+    public void persist(ThreatListDescriptor descriptor, List<String> hashes) throws IOException {
+        checkTableForDescriptor(descriptor);
 
-        String s = "INSERT INTO " + descriptor + " VALUES (?)";
+        String sql = "INSERT INTO " + descriptor + " VALUES (?)";
         try ( Connection conn = dataSource.getConnection();
-              PreparedStatement ps = conn.prepareStatement( s ) )
-        {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             int offset = 0;
             int inserted = 0;
-            for ( String hash : hashes )
-            {
-                ps.setString( 1, hash );
+            for (String hash : hashes) {
+                ps.setString(1, hash);
                 inserted += ps.executeUpdate();
-                if ( ++offset == BATCH_SIZE )
-                {
+                if (++offset == batchSize) {
                     conn.commit();
-                    LOGGER.info( "Inserted {} item(s)", inserted );
+                    LOGGER.info("Inserted {} item(s)", inserted);
                     offset = 0;
                     inserted = 0;
                 }
             }
-            if ( offset > 0 )
-            {
+            if (offset > 0) {
                 conn.commit();
-                LOGGER.info( "Inserted {} item(s)", inserted );
+                LOGGER.info("Inserted {} item(s)", inserted);
             }
-        }
-        catch ( SQLException ex )
-        {
-            throw new IOException( ex );
+        } catch (SQLException ex) {
+            throw new IOException(ex);
         }
     }
 
-
     @Override
-    public boolean contains( String hash, ThreatListDescriptor descriptor ) throws IOException
-    {
-        checkTableForDescriptor( descriptor );
+    public boolean contains(String hash, ThreatListDescriptor descriptor) throws IOException {
+        checkTableForDescriptor(descriptor);
 
-        String s = "SELECT prefix FROM " + descriptor + " WHERE prefix=?";
+        String sql = "SELECT prefix FROM " + descriptor + " WHERE prefix=?";
         try ( Connection conn = dataSource.getConnection();
-              PreparedStatement ps = conn.prepareStatement( s ) )
-        {
-            ps.setString( 1, hash );
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hash);
             ResultSet rs = ps.executeQuery();
             return rs.next();
-        }
-        catch ( SQLException ex )
-        {
-            throw new IOException( ex );
+        } catch (SQLException ex) {
+            throw new IOException(ex);
         }
     }
-
 
     @Override
-    public void clear( ThreatListDescriptor descriptor ) throws IOException
-    {
+    public void clear(ThreatListDescriptor descriptor) throws IOException {
         try ( Connection conn = dataSource.getConnection();
-              Statement st = conn.createStatement() )
-        {
-            st.execute( "DROP TABLE IF EXISTS " + descriptor );
+             Statement st = conn.createStatement()) {
+            st.execute("DROP TABLE IF EXISTS " + descriptor);
             conn.commit();
             LOCK.lock();
-            try
-            {
-                CREATED_TABLES.remove( descriptor );
-            }
-            finally
-            {
+            try {
+                CREATED_TABLES.remove(descriptor);
+            } finally {
                 LOCK.unlock();
             }
+        } catch (SQLException ex) {
+            throw new IOException(ex);
         }
-        catch ( SQLException ex )
-        {
-            throw new IOException( ex );
-        }
-        LOGGER.info( "Table {} dropped", descriptor );
+        LOGGER.info("Table {} dropped", descriptor);
     }
 
-
-    private void checkTableForDescriptor( ThreatListDescriptor descriptor ) throws IOException
-    {
-        if ( CREATED_TABLES.contains( descriptor ) )
-        {
+    private void checkTableForDescriptor(ThreatListDescriptor descriptor) throws IOException {
+        if (CREATED_TABLES.contains(descriptor)) {
             return;
         }
         Lock ref = LOCK;
         ref.lock();
-        try
-        {
-            if ( !CREATED_TABLES.contains( descriptor ) )
-            {
-                createTable( descriptor );
-                CREATED_TABLES.add( descriptor );
+        try {
+            if (!CREATED_TABLES.contains(descriptor)) {
+                createTable(descriptor);
+                CREATED_TABLES.add(descriptor);
             }
-        }
-        catch ( SQLException ex )
-        {
-            throw new IOException( ex );
-        }
-        finally
-        {
+        } catch (SQLException ex) {
+            throw new IOException(ex);
+        } finally {
             ref.unlock();
         }
     }
 
-
-    private void createTable( ThreatListDescriptor descriptor ) throws SQLException
-    {
+    private void createTable(ThreatListDescriptor descriptor) throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS " + descriptor
-                + " (prefix TEXT CONSTRAINT pk PRIMARY KEY ASC ON CONFLICT REPLACE)";
+            + " (prefix TEXT CONSTRAINT pk PRIMARY KEY ASC ON CONFLICT REPLACE)";
         try ( Connection conn = dataSource.getConnection();
-              PreparedStatement ps = conn.prepareStatement( sql ) )
-        {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.execute();
             conn.commit();
         }
     }
 
 }
-

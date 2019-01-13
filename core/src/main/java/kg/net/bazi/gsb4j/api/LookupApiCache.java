@@ -16,6 +16,8 @@
 
 package kg.net.bazi.gsb4j.api;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,15 +25,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import kg.net.bazi.gsb4j.Gsb4jBinding;
 import kg.net.bazi.gsb4j.data.ThreatMatch;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cache for threat matches from Lookup API.
@@ -39,35 +36,28 @@ import kg.net.bazi.gsb4j.data.ThreatMatch;
  * @author azilet
  */
 @Singleton
-class LookupApiCache extends ApiResponseCacheBase
-{
-    private static final Logger LOGGER = LoggerFactory.getLogger( LookupApiCache.class );
+class LookupApiCache extends ApiResponseCacheBase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LookupApiCache.class);
 
     private ConcurrentMap<String, ThreatMatch> items = new ConcurrentHashMap<>();
 
-
     @Inject
-    LookupApiCache( @Gsb4jBinding ScheduledExecutorService scheduler )
-    {
-        startMe( scheduler, 10, 60, TimeUnit.SECONDS );
+    LookupApiCache(@Gsb4jBinding ScheduledExecutorService scheduler) {
+        startMe(scheduler, 10, 60, TimeUnit.SECONDS);
     }
 
-
     @Override
-    public void run()
-    {
+    public void run() {
         Iterator<ThreatMatch> it = items.values().iterator();
-        while ( it.hasNext() )
-        {
+        while (it.hasNext()) {
             ThreatMatch match = it.next();
-            if ( isExpired( match ) )
-            {
+            if (isExpired(match)) {
                 it.remove();
-                LOGGER.info( "Cached threat removed: {}", match.getThreat().getUrl() );
+                LOGGER.info("Cached threat removed: {}", match.getThreat().getUrl());
             }
         }
     }
-
 
     /**
      * Checks if the supplied URL is in the cache.
@@ -75,23 +65,19 @@ class LookupApiCache extends ApiResponseCacheBase
      * @param url URL to check
      * @return threat match if found in the cache; {@code null} otherwise
      */
-    public ThreatMatch get( String url )
-    {
-        ThreatMatch match = items.get( url );
-        return match != null && !isExpired( match ) ? match : null;
+    public ThreatMatch get(String url) {
+        ThreatMatch match = items.get(url);
+        return match != null && !isExpired(match) ? match : null;
     }
-
 
     /**
      * Puts supplied threat match into this cache.
      *
      * @param match threat match to cache
      */
-    public void put( ThreatMatch match )
-    {
-        match.setTimestamp( System.currentTimeMillis() );
-        items.put( match.getThreat().getUrl(), match );
+    public void put(ThreatMatch match) {
+        match.setTimestamp(System.currentTimeMillis());
+        items.put(match.getThreat().getUrl(), match);
     }
 
 }
-

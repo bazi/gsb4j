@@ -16,52 +16,40 @@
 
 package kg.net.bazi.gsb4j.properties;
 
+import com.google.inject.ProvisionException;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import com.google.inject.ProvisionException;
-
 
 /**
  * Implementation of {@link Gsb4jProperties} which uses system properties as the source for values.
  *
  * @author azilet
  */
-class Gsb4jSystemProperties implements Gsb4jProperties
-{
-    public Gsb4jSystemProperties()
-    {
-        if ( getApiKey() == null )
-        {
-            throw new ProvisionException( "API key not supplied" );
+class Gsb4jSystemProperties implements Gsb4jProperties {
+
+    public Gsb4jSystemProperties() {
+        if (getApiKey() == null) {
+            throw new ProvisionException("API key not supplied");
         }
     }
 
-
     @Override
-    public String getApiKey()
-    {
-        return System.getProperty( API_KEY );
+    public String getApiKey() {
+        return System.getProperty(API_KEY);
     }
 
-
     @Override
-    public String getApiHttpReferrer()
-    {
-        return System.getProperty( API_HTTP_REFERRER );
+    public String getApiHttpReferrer() {
+        return System.getProperty(API_HTTP_REFERRER);
     }
 
-
     @Override
-    public Path getDataDirectory()
-    {
-        String dir = System.getProperty( DATA_DIRECTORY );
-        if ( dir != null && !dir.isEmpty() )
-        {
-            return Paths.get( dir );
+    public Path getDataDirectory() {
+        String dir = System.getProperty(DATA_DIRECTORY);
+        if (dir != null && !dir.isEmpty()) {
+            return Paths.get(dir);
         }
         return Gsb4jProperties.getDefaultDataDirectory();
     }
 }
-

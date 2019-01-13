@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kg.net.bazi.gsb4j.data.updates;
 
+package kg.net.bazi.gsb4j.data.updates;
 
 /**
  * Compression types that threat entry sets can be compressed.
  *
  * @author azilet
  */
-public enum CompressionType
-{
+public enum CompressionType {
     /**
      * Unknown compression type. Default type is used for this case which is {@link CompressionType#RAW}.
      */
@@ -36,4 +35,3 @@ public enum CompressionType
      */
     RICE,
 }
-

@@ -16,9 +16,12 @@
 
 package kg.net.bazi.gsb4j;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import java.io.IOException;
 
+import kg.net.bazi.gsb4j.properties.Gsb4jProperties;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
@@ -39,145 +42,113 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-
-import kg.net.bazi.gsb4j.properties.Gsb4jProperties;
-
-
 /**
  * Provider of HTTP client to be used for making requests to Safe Browsing API.
  *
  * @author azilet
  */
-class HttpClientProvider implements Provider<CloseableHttpClient>
-{
-    private static final Logger LOGGER = LoggerFactory.getLogger( HttpClientProvider.class );
+class HttpClientProvider implements Provider<CloseableHttpClient> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientProvider.class);
 
     @Inject
     Gsb4jProperties properties;
 
-
     @Override
-    public CloseableHttpClient get()
-    {
+    public CloseableHttpClient get() {
         PoolingHttpClientConnectionManager pcm = new PoolingHttpClientConnectionManager();
-        pcm.setMaxTotal( 50 );
-        pcm.setDefaultMaxPerRoute( 5 );
-        pcm.setValidateAfterInactivity( 10_000 );
+        pcm.setMaxTotal(50);
+        pcm.setDefaultMaxPerRoute(5);
+        pcm.setValidateAfterInactivity(10_000);
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout( 15_000 )
-                .build();
+            .setConnectTimeout(15_000)
+            .build();
 
         HttpClientBuilder httpClientBuilder = HttpClients.custom()
-                .setDefaultRequestConfig( requestConfig )
-                .disableCookieManagement()
-                .addInterceptorFirst( new GzipCompressionRequestInterceptor() )
-                .addInterceptorFirst( new GzipCompressionResponseInterceptor() )
-                .setConnectionManager( pcm );
+            .setDefaultRequestConfig(requestConfig)
+            .disableCookieManagement()
+            .addInterceptorFirst(new GzipCompressionRequestInterceptor())
+            .addInterceptorFirst(new GzipCompressionResponseInterceptor())
+            .setConnectionManager(pcm);
 
         String referer = properties.getApiHttpReferrer();
-        if ( referer != null && !referer.isEmpty() )
-        {
-            httpClientBuilder.addInterceptorLast( makeRequestRefererInterceptor( referer ) );
+        if (referer != null && !referer.isEmpty()) {
+            httpClientBuilder.addInterceptorLast(makeRequestRefererInterceptor(referer));
         }
-        if ( LOGGER.isDebugEnabled() )
-        {
-            httpClientBuilder.addInterceptorFirst( makeRequestPayloadLogger() );
-            httpClientBuilder.addInterceptorFirst( makeResponsePayloadLogger() );
+        if (LOGGER.isDebugEnabled()) {
+            httpClientBuilder.addInterceptorFirst(makeRequestPayloadLogger());
+            httpClientBuilder.addInterceptorFirst(makeResponsePayloadLogger());
         }
 
         return httpClientBuilder.build();
     }
 
-
-    private HttpRequestInterceptor makeRequestRefererInterceptor( String referer )
-    {
-        return new HttpRequestInterceptor()
-        {
+    private HttpRequestInterceptor makeRequestRefererInterceptor(String referer) {
+        return new HttpRequestInterceptor() {
             @Override
-            public void process( HttpRequest request, HttpContext context ) throws HttpException, IOException
-            {
-                request.addHeader( HttpHeaders.REFERER, referer );
+            public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
+                request.addHeader(HttpHeaders.REFERER, referer);
             }
         };
     }
 
-
-    private HttpRequestInterceptor makeRequestPayloadLogger()
-    {
-        return new HttpRequestInterceptor()
-        {
+    private HttpRequestInterceptor makeRequestPayloadLogger() {
+        return new HttpRequestInterceptor() {
             @Override
-            public void process( HttpRequest request, HttpContext context ) throws HttpException, IOException
-            {
-                LOGGER.debug( "===> {}", request.getRequestLine() );
+            public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
+                LOGGER.debug("===> {}", request.getRequestLine());
             }
         };
     }
 
-
-    private HttpResponseInterceptor makeResponsePayloadLogger()
-    {
-        return new HttpResponseInterceptor()
-        {
+    private HttpResponseInterceptor makeResponsePayloadLogger() {
+        return new HttpResponseInterceptor() {
             @Override
-            public void process( HttpResponse response, HttpContext context ) throws HttpException, IOException
-            {
-                LOGGER.debug( "<=== {}", response.getStatusLine() );
+            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+                LOGGER.debug("<=== {}", response.getStatusLine());
             }
         };
     }
-
 
     /**
      * HTTP request interceptor that adds headers to requests indicating responses can be compressed using gzip.
      *
      * @author azilet
      */
-    static class GzipCompressionRequestInterceptor implements HttpRequestInterceptor
-    {
+    static class GzipCompressionRequestInterceptor implements HttpRequestInterceptor {
+
         @Override
-        public void process( HttpRequest request, HttpContext context ) throws HttpException, IOException
-        {
-            if ( !request.containsHeader( HttpHeaders.ACCEPT_ENCODING ) )
-            {
-                request.addHeader( HttpHeaders.ACCEPT_ENCODING, "gzip,deflate" );
+        public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
+            if (!request.containsHeader(HttpHeaders.ACCEPT_ENCODING)) {
+                request.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip,deflate");
             }
         }
     }
-
 
     /**
      * HTTP response interceptor that makes possible to read compressed responses in gzip, deflate, etc.
      *
      * @author azilet
      */
-    static class GzipCompressionResponseInterceptor implements HttpResponseInterceptor
-    {
+    static class GzipCompressionResponseInterceptor implements HttpResponseInterceptor {
+
         @Override
-        public void process( HttpResponse response, HttpContext context ) throws HttpException, IOException
-        {
+        public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
             HttpEntity entity = response.getEntity();
             // immediately return for responses that have no body, e.g. response to HEAD requests
-            if ( entity == null )
-            {
+            if (entity == null) {
                 return;
             }
             Header header = entity.getContentEncoding();
-            if ( header != null )
-            {
-                for ( HeaderElement he : header.getElements() )
-                {
-                    if ( he.getName().equalsIgnoreCase( "gzip" ) )
-                    {
-                        response.setEntity( new GzipDecompressingEntity( entity ) );
+            if (header != null) {
+                for (HeaderElement he : header.getElements()) {
+                    if (he.getName().equalsIgnoreCase("gzip")) {
+                        response.setEntity(new GzipDecompressingEntity(entity));
                         break;
                     }
-                    if ( he.getName().equalsIgnoreCase( "deflate" ) )
-                    {
-                        response.setEntity( new DeflateDecompressingEntity( entity ) );
+                    if (he.getName().equalsIgnoreCase("deflate")) {
+                        response.setEntity(new DeflateDecompressingEntity(entity));
                         break;
                     }
                 }
@@ -185,6 +156,4 @@ class HttpClientProvider implements Provider<CloseableHttpClient>
         }
     }
 
-
 }
-

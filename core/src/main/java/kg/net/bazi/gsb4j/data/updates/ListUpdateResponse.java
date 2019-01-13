@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kg.net.bazi.gsb4j.data.updates;
 
+package kg.net.bazi.gsb4j.data.updates;
 
 import java.util.List;
 
@@ -22,14 +22,13 @@ import kg.net.bazi.gsb4j.data.PlatformType;
 import kg.net.bazi.gsb4j.data.ThreatEntryType;
 import kg.net.bazi.gsb4j.data.ThreatType;
 
-
 /**
  * An update to an individual list.
  *
  * @author azilet
  */
-public class ListUpdateResponse
-{
+public class ListUpdateResponse {
+
     private ThreatType threatType;
     private ThreatEntryType threatEntryType;
     private PlatformType platformType;
@@ -39,133 +38,92 @@ public class ListUpdateResponse
     private String newClientState;
     private Checksum checksum;
 
-
-    public ThreatType getThreatType()
-    {
+    public ThreatType getThreatType() {
         return threatType;
     }
 
-
-    public void setThreatType( ThreatType threatType )
-    {
+    public void setThreatType(ThreatType threatType) {
         this.threatType = threatType;
     }
 
-
-    public ThreatEntryType getThreatEntryType()
-    {
+    public ThreatEntryType getThreatEntryType() {
         return threatEntryType;
     }
 
-
-    public void setThreatEntryType( ThreatEntryType threatEntryType )
-    {
+    public void setThreatEntryType(ThreatEntryType threatEntryType) {
         this.threatEntryType = threatEntryType;
     }
 
-
-    public PlatformType getPlatformType()
-    {
+    public PlatformType getPlatformType() {
         return platformType;
     }
 
-
-    public void setPlatformType( PlatformType platformType )
-    {
+    public void setPlatformType(PlatformType platformType) {
         this.platformType = platformType;
     }
 
-
-    public ResponseType getResponseType()
-    {
+    public ResponseType getResponseType() {
         return responseType;
     }
 
-
-    public void setResponseType( ResponseType responseType )
-    {
+    public void setResponseType(ResponseType responseType) {
         this.responseType = responseType;
     }
 
-
-    public List<ThreatEntrySet> getAdditions()
-    {
+    public List<ThreatEntrySet> getAdditions() {
         return additions;
     }
 
-
-    public void setAdditions( List<ThreatEntrySet> additions )
-    {
+    public void setAdditions(List<ThreatEntrySet> additions) {
         this.additions = additions;
     }
 
-
-    public List<ThreatEntrySet> getRemovals()
-    {
+    public List<ThreatEntrySet> getRemovals() {
         return removals;
     }
 
-
-    public void setRemovals( List<ThreatEntrySet> removals )
-    {
+    public void setRemovals(List<ThreatEntrySet> removals) {
         this.removals = removals;
     }
 
-
-    public String getNewClientState()
-    {
+    public String getNewClientState() {
         return newClientState;
     }
 
-
-    public void setNewClientState( String newClientState )
-    {
+    public void setNewClientState(String newClientState) {
         this.newClientState = newClientState;
     }
 
-
-    public Checksum getChecksum()
-    {
+    public Checksum getChecksum() {
         return checksum;
     }
 
-
-    public void setChecksum( Checksum checksum )
-    {
+    public void setChecksum(Checksum checksum) {
         this.checksum = checksum;
     }
-
 
     /**
      * The type of response sent to the client.
      */
-    public static enum ResponseType
-    {
+    public static enum ResponseType {
         RESPONSE_TYPE_UNSPECIFIED, PARTIAL_UPDATE, FULL_UPDATE
     }
-
 
     /**
      * The expected state of a client's local database.
      */
-    public static class Checksum
-    {
+    public static class Checksum {
+
         private String sha256;
 
-
-        public String getSha256()
-        {
+        public String getSha256() {
             return sha256;
         }
 
-
-        public void setSha256( String sha256 )
-        {
+        public void setSha256(String sha256) {
             this.sha256 = sha256;
         }
 
     }
 
-
 }
-

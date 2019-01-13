@@ -13,74 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kg.net.bazi.gsb4j.data;
 
+package kg.net.bazi.gsb4j.data;
 
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-
 
 /**
  * The information regarding one or more threats that a client submits when checking for matches in threat lists.
  *
  * @author azilet
  */
-public class ThreatInfo
-{
+public class ThreatInfo {
+
     private Set<ThreatType> threatTypes = ThreatType.getAll();
-    private Set<PlatformType> platformTypes = EnumSet.of( PlatformType.ANY_PLATFORM );
-    private Set<ThreatEntryType> threatEntryTypes = EnumSet.of( ThreatEntryType.URL );
+    private Set<PlatformType> platformTypes = EnumSet.of(PlatformType.ANY_PLATFORM);
+    private Set<ThreatEntryType> threatEntryTypes = EnumSet.of(ThreatEntryType.URL);
     private Set<ThreatEntry> threatEntries = new HashSet<>();
 
-
-    public Set<ThreatType> getThreatTypes()
-    {
+    public Set<ThreatType> getThreatTypes() {
         return threatTypes;
     }
 
-
-    public void setThreatTypes( Set<ThreatType> threatTypes )
-    {
+    public void setThreatTypes(Set<ThreatType> threatTypes) {
         this.threatTypes = threatTypes;
     }
 
-
-    public Set<PlatformType> getPlatformTypes()
-    {
+    public Set<PlatformType> getPlatformTypes() {
         return platformTypes;
     }
 
-
-    public void setPlatformTypes( Set<PlatformType> platformTypes )
-    {
+    public void setPlatformTypes(Set<PlatformType> platformTypes) {
         this.platformTypes = platformTypes;
     }
 
-
-    public Set<ThreatEntryType> getThreatEntryTypes()
-    {
+    public Set<ThreatEntryType> getThreatEntryTypes() {
         return threatEntryTypes;
     }
 
-
-    public void setThreatEntryTypes( Set<ThreatEntryType> threatEntryTypes )
-    {
+    public void setThreatEntryTypes(Set<ThreatEntryType> threatEntryTypes) {
         this.threatEntryTypes = threatEntryTypes;
     }
 
-
-    public Set<ThreatEntry> getThreatEntries()
-    {
+    public Set<ThreatEntry> getThreatEntries() {
         return threatEntries;
     }
 
-
-    public void setThreatEntries( Set<ThreatEntry> threatEntries )
-    {
+    public void setThreatEntries(Set<ThreatEntry> threatEntries) {
         this.threatEntries = threatEntries;
     }
 
-
 }
-

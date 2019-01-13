@@ -16,6 +16,9 @@
 
 package kg.net.bazi.gsb4j.cache;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,13 +29,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-
 import kg.net.bazi.gsb4j.api.ThreatListGetter;
 import kg.net.bazi.gsb4j.data.ThreatListDescriptor;
-
 
 /**
  * Holds currently available threat list descriptors. Updated on every update request to API.
@@ -40,62 +38,50 @@ import kg.net.bazi.gsb4j.data.ThreatListDescriptor;
  * @author azilet
  */
 @Singleton
-public class ThreatListDescriptorsCache
-{
+public class ThreatListDescriptorsCache {
+
     @Inject
     private Provider<ThreatListGetter> threatListGetterProvider;
 
     private final Set<ThreatListDescriptor> cache = new HashSet<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-
     /**
      * Gets cached threat list descriptors.
      *
      * @return descriptors collection
      */
-    public Collection<ThreatListDescriptor> get()
-    {
+    public Collection<ThreatListDescriptor> get() {
         Lock readLock = lock.readLock();
         readLock.lock();
-        try
-        {
-            if ( !cache.isEmpty() )
-            {
-                return Collections.unmodifiableCollection( cache );
+        try {
+            if (!cache.isEmpty()) {
+                return Collections.unmodifiableCollection(cache);
             }
-        }
-        finally
-        {
+        } finally {
             readLock.unlock();
         }
         return getRefreshed();
     }
-
 
     /**
      * Gets threat list descriptors first refreshing the cache.
      *
      * @return descriptors
      */
-    public Collection<ThreatListDescriptor> getRefreshed()
-    {
+    public Collection<ThreatListDescriptor> getRefreshed() {
         ThreatListGetter threatListGetter = threatListGetterProvider.get();
         List<ThreatListDescriptor> ls = threatListGetter.getLists();
 
         Lock writeLock = lock.writeLock();
         writeLock.lock();
-        try
-        {
+        try {
             cache.clear();
-            cache.addAll( ls );
-        }
-        finally
-        {
+            cache.addAll(ls);
+        } finally {
             writeLock.unlock();
         }
-        return Collections.unmodifiableCollection( cache );
+        return Collections.unmodifiableCollection(cache);
     }
 
 }
-

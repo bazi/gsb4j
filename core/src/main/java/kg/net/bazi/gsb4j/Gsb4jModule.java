@@ -16,6 +16,12 @@
 
 package kg.net.bazi.gsb4j;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,14 +32,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-
-
 /**
  * Guice module to initialize common bindings used in Gsb4j.
  * <p>
@@ -42,43 +40,36 @@ import com.google.inject.Singleton;
  *
  * @author azilet
  */
-public class Gsb4jModule extends AbstractModule
-{
+public class Gsb4jModule extends AbstractModule {
 
     @Override
-    protected void configure()
-    {
-        bind( CloseableHttpClient.class )
-                .annotatedWith( Gsb4jBinding.class )
-                .toProvider( HttpClientProvider.class )
-                .asEagerSingleton();
+    protected void configure() {
+        bind(CloseableHttpClient.class)
+            .annotatedWith(Gsb4jBinding.class)
+            .toProvider(HttpClientProvider.class)
+            .asEagerSingleton();
     }
-
 
     @Provides
     @Gsb4jBinding
     @Singleton
-    Gson makeGson( EnumTypeAdapterFactory factory )
-    {
+    Gson makeGson(EnumTypeAdapterFactory factory) {
         return new GsonBuilder()
-                .setFieldNamingPolicy( FieldNamingPolicy.IDENTITY )
-                .registerTypeAdapterFactory( factory )
-                .create();
+            .setFieldNamingPolicy(FieldNamingPolicy.IDENTITY)
+            .registerTypeAdapterFactory(factory)
+            .create();
     }
-
 
     @Provides
     @Gsb4jBinding
     @Singleton
-    ScheduledExecutorService makeScheduler()
-    {
-        Logger logger = LoggerFactory.getLogger( Logger.ROOT_LOGGER_NAME );
+    ScheduledExecutorService makeScheduler() {
+        Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         ThreadFactory tf = new BasicThreadFactory.Builder()
-                .namingPattern( "gsb4j-pool-%d" )
-                .uncaughtExceptionHandler( (t, ex) -> logger.error( "Thread {} failed", t.getName(), ex ) )
-                .build();
-        return Executors.newScheduledThreadPool( 4, tf );
+            .namingPattern("gsb4j-pool-%d")
+            .uncaughtExceptionHandler((thread, ex) -> logger.error("Thread {} failed", thread.getName(), ex))
+            .build();
+        return Executors.newScheduledThreadPool(4, tf);
     }
 
 }
-

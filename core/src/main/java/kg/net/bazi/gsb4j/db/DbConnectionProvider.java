@@ -16,6 +16,11 @@
 
 package kg.net.bazi.gsb4j.db;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,62 +29,45 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.sqlite.JDBC;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.ProvisionException;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
 import kg.net.bazi.gsb4j.Gsb4j;
 import kg.net.bazi.gsb4j.properties.Gsb4jProperties;
-
+import org.sqlite.JDBC;
 
 /**
  * Data source provider for SQL local database.
  *
  * @author azilet
  */
-class DbConnectionProvider implements Provider<DataSource>
-{
+class DbConnectionProvider implements Provider<DataSource> {
+
     private DataSource dataSource;
 
-
     @Inject
-    DbConnectionProvider( Gsb4jProperties properties )
-    {
+    DbConnectionProvider(Gsb4jProperties properties) {
         Path dataDir = properties.getDataDirectory();
-        if ( !Files.exists( dataDir ) )
-        {
-            try
-            {
-                Files.createDirectories( dataDir );
-            }
-            catch ( IOException ex )
-            {
-                throw new ProvisionException( "Failed to create data directory", ex );
+        if (!Files.exists(dataDir)) {
+            try {
+                Files.createDirectories(dataDir);
+            } catch (IOException ex) {
+                throw new ProvisionException("Failed to create data directory", ex);
             }
         }
 
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl( JDBC.PREFIX + dataDir.resolve( "local.db" ) );
-        config.setPoolName( Gsb4j.GSB4J );
-        config.setAutoCommit( false );
-        config.setConnectionTimeout( TimeUnit.SECONDS.toMillis( 20 ) );
-        config.setIdleTimeout( TimeUnit.MINUTES.toMillis( 10 ) );
-        config.setMaxLifetime( TimeUnit.MINUTES.toMillis( 30 ) );
-        config.setMinimumIdle( 4 );
-        config.setMaximumPoolSize( 10 );
+        config.setJdbcUrl(JDBC.PREFIX + dataDir.resolve("local.db"));
+        config.setPoolName(Gsb4j.GSB4J);
+        config.setAutoCommit(false);
+        config.setConnectionTimeout(TimeUnit.SECONDS.toMillis(20));
+        config.setIdleTimeout(TimeUnit.MINUTES.toMillis(10));
+        config.setMaxLifetime(TimeUnit.MINUTES.toMillis(30));
+        config.setMinimumIdle(4);
+        config.setMaximumPoolSize(10);
 
-        this.dataSource = new HikariDataSource( config );
+        this.dataSource = new HikariDataSource(config);
     }
 
-
     @Override
-    public DataSource get()
-    {
+    public DataSource get() {
         return dataSource;
     }
 }
-

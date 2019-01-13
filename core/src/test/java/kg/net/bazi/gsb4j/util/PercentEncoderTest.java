@@ -16,46 +16,35 @@
 
 package kg.net.bazi.gsb4j.util;
 
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+public class PercentEncoderTest {
 
-public class PercentEncoderTest
-{
     private PercentEncoder penc = new PercentEncoder();
 
-
     @Before
-    public void setUp()
-    {
+    public void setUp() {
     }
-
 
     @After
-    public void tearDown()
-    {
+    public void tearDown() {
     }
 
-
     @Test
-    public void testEncode()
-    {
-        Assert.assertEquals( "query%3Dworld%20nomads%26count%3D5", penc.encode( "query=world nomads&count=5" ) );
-        Assert.assertEquals( "query%3DHe%20is%20%22Joe%22", penc.encode( "query=He is \"Joe\"" ) );
-        Assert.assertEquals( "pattern%3Da%7Cb", penc.encode( "pattern=a|b" ) );
+    public void testEncode() {
+        Assert.assertEquals("query%3Dworld%20nomads%26count%3D5", penc.encode("query=world nomads&count=5"));
+        Assert.assertEquals("query%3DHe%20is%20%22Joe%22", penc.encode("query=He is \"Joe\""));
+        Assert.assertEquals("pattern%3Da%7Cb", penc.encode("pattern=a|b"));
     }
 
-
     @Test
-    public void testDecode()
-    {
-        Assert.assertEquals( "query=world nomads&count=5", penc.decode( "query%3Dworld%20nomads%26count%3D5" ) );
-        Assert.assertEquals( "query=He is \"Joe\"", penc.decode( "query%3DHe%20is%20%22Joe%22" ) );
-        Assert.assertEquals( "pattern=a|b", penc.decode( "pattern%3Da%7Cb" ) );
+    public void testDecode() {
+        Assert.assertEquals("query=world nomads&count=5", penc.decode("query%3Dworld%20nomads%26count%3D5"));
+        Assert.assertEquals("query=He is \"Joe\"", penc.decode("query%3DHe%20is%20%22Joe%22"));
+        Assert.assertEquals("pattern=a|b", penc.decode("pattern%3Da%7Cb"));
     }
 
 }
-

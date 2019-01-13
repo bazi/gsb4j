@@ -16,6 +16,8 @@
 
 package kg.net.bazi.gsb4j.api;
 
+import com.google.gson.Gson;
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +28,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import kg.net.bazi.gsb4j.Gsb4j;
+import kg.net.bazi.gsb4j.Gsb4jBinding;
+import kg.net.bazi.gsb4j.data.PlatformType;
+import kg.net.bazi.gsb4j.data.ThreatMatch;
+import kg.net.bazi.gsb4j.properties.Gsb4jClientInfoProvider;
+import kg.net.bazi.gsb4j.properties.Gsb4jProperties;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -36,24 +44,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 
-import com.google.gson.Gson;
-import com.google.inject.Inject;
-
-import kg.net.bazi.gsb4j.Gsb4j;
-import kg.net.bazi.gsb4j.Gsb4jBinding;
-import kg.net.bazi.gsb4j.data.PlatformType;
-import kg.net.bazi.gsb4j.data.ThreatMatch;
-import kg.net.bazi.gsb4j.properties.Gsb4jClientInfoProvider;
-import kg.net.bazi.gsb4j.properties.Gsb4jProperties;
-
-
 /**
  * Abstract base class for Safe Browsing API implementation classes.
  *
  * @author azilet
  */
-abstract class SafeBrowsingApiBase
-{
+abstract class SafeBrowsingApiBase {
+
     @Inject
     @Gsb4jBinding
     CloseableHttpClient httpClient;
@@ -67,16 +64,12 @@ abstract class SafeBrowsingApiBase
 
     private String apiKey;
 
-
     abstract Logger getLogger();
 
-
     @Inject
-    void setApiKey( Gsb4jProperties properties )
-    {
+    void setApiKey(Gsb4jProperties properties) {
         apiKey = properties.getApiKey();
     }
-
 
     /**
      * Selects threat among supplied matches that has a broader impact. A threat to all or any of platforms has a
@@ -85,35 +78,27 @@ abstract class SafeBrowsingApiBase
      * @param matches list of matches to select from; should not be empty
      * @return a match that has more generic impact; or first one if there is no such a threat
      */
-    ThreatMatch selectMoreGenericThreat( List<ThreatMatch> matches )
-    {
-        if ( matches.size() > 1 )
-        {
+    ThreatMatch selectMoreGenericThreat(List<ThreatMatch> matches) {
+        if (matches.size() > 1) {
             StringBuilder sb = new StringBuilder();
-            for ( ThreatMatch match : matches )
-            {
-                sb.append( System.lineSeparator() ).append( gson.toJson( match ) );
+            for (ThreatMatch match : matches) {
+                sb.append(System.lineSeparator()).append(gson.toJson(match));
             }
-            getLogger().info( "Multiple threat matches found: {}", sb.toString() );
+            getLogger().info("Multiple threat matches found: {}", sb.toString());
 
-            for ( ThreatMatch match : matches )
-            {
-                if ( match.getPlatformType() == PlatformType.ALL_PLATFORMS )
-                {
+            for (ThreatMatch match : matches) {
+                if (match.getPlatformType() == PlatformType.ALL_PLATFORMS) {
                     return match;
                 }
             }
-            for ( ThreatMatch match : matches )
-            {
-                if ( match.getPlatformType() == PlatformType.ANY_PLATFORM )
-                {
+            for (ThreatMatch match : matches) {
+                if (match.getPlatformType() == PlatformType.ANY_PLATFORM) {
                     return match;
                 }
             }
         }
-        return matches.get( 0 );
+        return matches.get(0);
     }
-
 
     /**
      * Makes up an HTTP request based on passed arguments.
@@ -123,20 +108,17 @@ abstract class SafeBrowsingApiBase
      * @param payload payload to include in request; maybe {@code null}
      * @return HTTP request
      */
-    HttpUriRequest makeRequest( String httpMethod, String endpoint, Object payload )
-    {
-        RequestBuilder builder = RequestBuilder.create( httpMethod )
-                .setUri( Gsb4j.API_BASE_URL + endpoint )
-                .addParameter( "key", apiKey )
-                .setHeader( HttpHeaders.CONTENT_TYPE, "application/json" );
+    HttpUriRequest makeRequest(String httpMethod, String endpoint, Object payload) {
+        RequestBuilder builder = RequestBuilder.create(httpMethod)
+            .setUri(Gsb4j.API_BASE_URL + endpoint)
+            .addParameter("key", apiKey)
+            .setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
-        if ( payload != null )
-        {
-            builder.setEntity( new StringEntity( gson.toJson( payload ), StandardCharsets.UTF_8 ) );
+        if (payload != null) {
+            builder.setEntity(new StringEntity(gson.toJson(payload), StandardCharsets.UTF_8));
         }
         return builder.build();
     }
-
 
     /**
      * Gets input stream of the http response. Stream is returned only if the response is OK and a valid content stream
@@ -147,19 +129,15 @@ abstract class SafeBrowsingApiBase
      * @throws IOException when no valid response stream was found; for example when the response status is not HTTP
      * 200, or there is no response entity at all
      */
-    InputStream getInputStream( HttpResponse response ) throws IOException
-    {
-        if ( response.getStatusLine().getStatusCode() != HttpStatus.SC_OK )
-        {
-            throw new IOException( "Response status code is not OK: " + response.getStatusLine() );
+    InputStream getInputStream(HttpResponse response) throws IOException {
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new IOException("Response status code is not OK: " + response.getStatusLine());
         }
-        if ( response.getEntity() == null )
-        {
-            throw new IOException( "No message entity found in response" );
+        if (response.getEntity() == null) {
+            throw new IOException("No message entity found in response");
         }
         return response.getEntity().getContent();
     }
-
 
     /**
      * Gets {@link Reader} for the HTTP response. This method wraps input stream returned by
@@ -169,12 +147,10 @@ abstract class SafeBrowsingApiBase
      * @return input stream reader; never {@code null}
      * @throws IOException same as {@link #getInputStream(org.apache.http.HttpResponse)}
      */
-    Reader getResponseReader( CloseableHttpResponse resp ) throws IOException
-    {
-        InputStream is = getInputStream( resp );
-        return new InputStreamReader( is, StandardCharsets.UTF_8 );
+    Reader getResponseReader(CloseableHttpResponse resp) throws IOException {
+        InputStream is = getInputStream(resp);
+        return new InputStreamReader(is, StandardCharsets.UTF_8);
     }
-
 
     /**
      * Wraps payload into a map together with client info. Client info is necessary for all API requests.
@@ -183,13 +159,11 @@ abstract class SafeBrowsingApiBase
      * @param payload payload
      * @return map of payload and client info data
      */
-    Map<String, Object> wrapPayload( String name, Object payload )
-    {
+    Map<String, Object> wrapPayload(String name, Object payload) {
         Map<String, Object> map = new HashMap<>();
-        map.put( "client", clientInfoProvider.make() );
-        map.put( name, payload );
+        map.put("client", clientInfoProvider.make());
+        map.put(name, payload);
         return map;
     }
 
 }
-

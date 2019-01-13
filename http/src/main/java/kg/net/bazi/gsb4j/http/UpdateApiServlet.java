@@ -16,43 +16,35 @@
 
 package kg.net.bazi.gsb4j.http;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import kg.net.bazi.gsb4j.api.SafeBrowsingApi;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Servlet for Safe Browsing Update API.
  *
  * @author bazi
  */
-class UpdateApiServlet extends ServletBase
-{
-    private static final Logger LOGGER = LoggerFactory.getLogger( UpdateApiServlet.class );
+class UpdateApiServlet extends ServletBase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateApiServlet.class);
 
     @Inject
-    @Named( SafeBrowsingApi.UPDATE_API )
+    @Named(SafeBrowsingApi.UPDATE_API)
     Provider<SafeBrowsingApi> updateApiProvider;
 
-
     @Override
-    Logger getLogger()
-    {
+    Logger getLogger() {
         return LOGGER;
     }
 
-
     @Override
-    SafeBrowsingApi getSafeBrowsingApi()
-    {
+    SafeBrowsingApi getSafeBrowsingApi() {
         return updateApiProvider.get();
     }
 
 }
-

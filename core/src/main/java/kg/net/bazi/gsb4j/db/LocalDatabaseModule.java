@@ -16,14 +16,12 @@
 
 package kg.net.bazi.gsb4j.db;
 
+import com.google.inject.AbstractModule;
 
 import javax.sql.DataSource;
 
-import com.google.inject.AbstractModule;
-
 import kg.net.bazi.gsb4j.Gsb4j;
 import kg.net.bazi.gsb4j.Gsb4jBinding;
-
 
 /**
  * Guice module to initialize database related bindings.
@@ -33,15 +31,13 @@ import kg.net.bazi.gsb4j.Gsb4jBinding;
  *
  * @author azilet
  */
-public class LocalDatabaseModule extends AbstractModule
-{
-    @Override
-    protected void configure()
-    {
-        bind( LocalDatabase.class ).to( SqlLocalDatabase.class );
+public class LocalDatabaseModule extends AbstractModule {
 
-        bind( DataSource.class ).annotatedWith( Gsb4jBinding.class )
-                .toProvider( DbConnectionProvider.class ).asEagerSingleton();
+    @Override
+    protected void configure() {
+        bind(LocalDatabase.class).to(SqlLocalDatabase.class);
+
+        bind(DataSource.class).annotatedWith(Gsb4jBinding.class)
+            .toProvider(DbConnectionProvider.class).asEagerSingleton();
     }
 }
-

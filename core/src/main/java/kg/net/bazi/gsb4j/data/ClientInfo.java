@@ -13,42 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kg.net.bazi.gsb4j.data;
 
+package kg.net.bazi.gsb4j.data;
 
 /**
  * The client metadata associated with Safe Browsing API requests.
  *
  * @author azilet
  */
-public class ClientInfo
-{
+public class ClientInfo {
+
     private String clientId;
     private String clientVersion;
 
-
-    public String getClientId()
-    {
+    public String getClientId() {
         return clientId;
     }
 
-
-    public void setClientId( String clientId )
-    {
+    public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
-
-    public String getClientVersion()
-    {
+    public String getClientVersion() {
         return clientVersion;
     }
 
-
-    public void setClientVersion( String clientVersion )
-    {
+    public void setClientVersion(String clientVersion) {
         this.clientVersion = clientVersion;
     }
 
 }
-

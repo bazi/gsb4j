@@ -16,71 +16,58 @@
 
 package kg.net.bazi.gsb4j.util;
 
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-
 /**
  *
  * @author azilet
  */
-public class UrlSplitterTest
-{
+public class UrlSplitterTest {
+
     private UrlSplitter splitter = new UrlSplitter();
 
-
     @Before
-    public void setUp()
-    {
+    public void setUp() {
     }
-
 
     @After
-    public void tearDown()
-    {
+    public void tearDown() {
     }
 
-
     @Test
-    public void testSplit1()
-    {
-        UrlSplitter.UrlParts parts = splitter.split( "http://example.com:8080/path/here?param=1" );
+    public void testSplit1() {
+        UrlSplitter.UrlParts parts = splitter.split("http://example.com:8080/path/here?param=1");
 
-        Assert.assertEquals( "http://", parts.getScheme() );
-        Assert.assertEquals( "example.com", parts.getHost() );
-        Assert.assertEquals( ":8080", parts.getPort() );
-        Assert.assertEquals( "/path/here", parts.getPath() );
-        Assert.assertEquals( "?param=1", parts.getQuery() );
+        Assert.assertEquals("http://", parts.getScheme());
+        Assert.assertEquals("example.com", parts.getHost());
+        Assert.assertEquals(":8080", parts.getPort());
+        Assert.assertEquals("/path/here", parts.getPath());
+        Assert.assertEquals("?param=1", parts.getQuery());
     }
 
-
     @Test
-    public void testSplit2()
-    {
-        UrlSplitter.UrlParts parts = splitter.split( "http://example.com?param=1" );
+    public void testSplit2() {
+        UrlSplitter.UrlParts parts = splitter.split("http://example.com?param=1");
 
-        Assert.assertEquals( "http://", parts.getScheme() );
-        Assert.assertEquals( "example.com", parts.getHost() );
-        Assert.assertNull( parts.getPort() );
-        Assert.assertNull( parts.getPath() );
-        Assert.assertEquals( "?param=1", parts.getQuery() );
+        Assert.assertEquals("http://", parts.getScheme());
+        Assert.assertEquals("example.com", parts.getHost());
+        Assert.assertNull(parts.getPort());
+        Assert.assertNull(parts.getPath());
+        Assert.assertEquals("?param=1", parts.getQuery());
 
     }
 
-
     @Test
-    public void testSplit3()
-    {
-        UrlSplitter.UrlParts parts = splitter.split( "http://example.com/path/1/" );
+    public void testSplit3() {
+        UrlSplitter.UrlParts parts = splitter.split("http://example.com/path/1/");
 
-        Assert.assertEquals( "http://", parts.getScheme() );
-        Assert.assertEquals( "example.com", parts.getHost() );
-        Assert.assertNull( parts.getPort() );
-        Assert.assertEquals( "/path/1/", parts.getPath() );
-        Assert.assertNull( parts.getQuery() );
+        Assert.assertEquals("http://", parts.getScheme());
+        Assert.assertEquals("example.com", parts.getHost());
+        Assert.assertNull(parts.getPort());
+        Assert.assertEquals("/path/1/", parts.getPath());
+        Assert.assertNull(parts.getQuery());
     }
 }
-
