@@ -8,7 +8,7 @@ It has both Lookup API and Update API implementations.
 
 Gsb4j requires Java 8 or newer.
 
-Refer to [Feedback](https://github.com/bazi/gsb4j#feedback) section of this page if you have questions regarding this project.
+Refer to [Feedback](#feedback) section of this page if you have questions regarding this project.
 
 
 ## Get started
@@ -18,13 +18,13 @@ You can use Gsb4j by including dependency declaration in your project. If you us
 <dependency>
     <groupId>kg.net.bazi.gsb4j</groupId>
     <artifactId>gsb4j-core</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
 Gsb4j happily uses [Guice](https://github.com/google/guice) dependency injection framework.
 Don't be afraid if you are not familiar with Guice -- Gsb4j handles it all and provides methods to bootstrap Gsb4j modules
-and to get an instance of API client implementations. Code fragment below illustrates sample usage of Gsb4j.
+and to get instances of API client implementations. Code fragment below illustrates sample usage of Gsb4j.
 
 ```java
 Gsb4j gsb4j = Gsb4j.bootstrap(); // (1)
@@ -46,7 +46,7 @@ gsb4j.shutdown(); // (4)
    configuration parameters be specified as system properties (`-Dapi.key=...`). Read below about configurations.
 1. Get an API client implementation instance, either Lookup API (as shown above) or Update API.
 1. Check your URL. If URL is recognized as unsafe by Google Safe Browsing, then non-null object representing the threat
-   is returned. Otherwise, `null` is returned which means URL in hand does not impose any threat.
+   is returned. Otherwise, `null` is returned which means URL is safe and does not impose any threat.
 1. Shutdown is optional but highly recommended so that we are all clean. It releases resources held by Gsb4j.
    Usually such methods are called prior to application exit, e.g. in JVM shutdown hooks.
    **Shutdown Gsb4j only when you are all done and will NOT be using Gsb4j anymore**.
@@ -110,18 +110,18 @@ More details on [wiki page](https://github.com/bazi/gsb4j/wiki/HTTP-Proxy).
 Gsb4j is more or less a complete implementation of the API v4. But there are some parts that are not supported.
 Those parts do not influence the overall usability of the API but, nevertheless, they are not supported for now :)
 
-- Lookup API supports queries of up to 500 URLs but we query one URL at a time.
+- Google Safe Browsing Lookup API supports queries of up to 500 URLs in a single request but we query one URL at a time.
   One usually checks only one URL in hand and this is the sole reason we support single URL queries.
-  This may change in future if needed.
+  This may change in future if needed. ([doc reference](https://developers.google.com/safe-browsing/v4/lookup-api))
 - Rice compression of payloads ([doc reference](https://developers.google.com/safe-browsing/v4/compression))
 - Back-off mode for unsuccessful HTTP responses from API ([doc reference](https://developers.google.com/safe-browsing/v4/request-frequency))
 
 
 ## Feedback
-Your feedbacks are welcome and appreciated. You can use [Gsb4j mailing list](https://groups.google.com/d/forum/gsb4j)
+Your feedback and comments are welcome and appreciated. You can use [Gsb4j mailing list](https://groups.google.com/d/forum/gsb4j)
 to ask any kind of questions or to share your thoughts on various topics related to Gsb4j.
 This mailing list is open to everything Gsb4j related.
 
 If you find any bugs or issues related to working of Gsb4j, then you should be creating 
-an issue here in Github. And of course contributions are welcome!
+an issue in Github. Contributions are always welcome!
 
