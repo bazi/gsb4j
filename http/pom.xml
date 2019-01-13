@@ -30,6 +30,7 @@
 
     <properties>
         <maven.assembly.descriptor>src/main/resources/assembly.xml</maven.assembly.descriptor>
+        <checkstyle.suppressions.location>${project.basedir}/../checkstyle-suppressions.xml</checkstyle.suppressions.location>
     </properties>
 
     <build>    

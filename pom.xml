@@ -307,11 +307,12 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>6.18</version>
+                            <version>8.16</version>
                         </dependency>
                     </dependencies>
                     <configuration>
                         <configLocation>google_checks.xml</configLocation>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -334,6 +335,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
+                <!--
+                    Generate xref files only for main code, no need for test code.
+                    Checkstyle HTML report cannot link test files to correct xref (site/xref-test), instead it links
+                    all files to main xref.
+                -->
                 <reportSets>
                     <reportSet>
                         <reports>

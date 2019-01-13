@@ -28,6 +28,10 @@
     <name>Gsb4j Core</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <checkstyle.suppressions.location>${project.basedir}/../checkstyle-suppressions.xml</checkstyle.suppressions.location>
+    </properties>
+
     <dependencies>
 
         <dependency>
