@@ -1,8 +1,8 @@
 # Contributing
 
-GSb4j is newly released to open hosting and it is yet unknown if there will be contributions.
+GSb4j is newly released to open hosting and it is yet unknown if there will be any contributions.
 Anyways, contributing to Gsb4j is possible and would be appreciated. The contributing path
-would be no different from that of most of other open source projects. You find an issue or
+would be no different from that of most other open source projects. You find an issue or
 want to add new features, you do a fix or implementation on yourself, and finally open a
 pull request. Pull requests, naturally, are expected to fullful some basic requirements:
 
@@ -15,6 +15,16 @@ pull request. Pull requests, naturally, are expected to fullful some basic requi
 
 
 ## Code formatting
+
+### Current
+Starting from v1.0.4, Gsb4j has adopted [Google Java Style Guice](https://google.github.io/styleguide/javaguide.html)
+with some exceptions. Exceptions are reflected in [suppressions file](checkstyle-suppressions.xml)
+of Maven Checkstyle plugin. That file has notes about customizations. The most evident exceptions are
+identation and line lenght rules.
+
+### Legacy (v1.0.3 and before)
+
+**Please note that code style described below is not used anymore and is left for previous version source code reference.**
 
 Every project should follow a predefined set of code formatting conventions.
 There is no need to explain its benefits. Conventions should be
