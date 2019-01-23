@@ -2,7 +2,6 @@
 [![Build Status](https://travis-ci.org/bazi/gsb4j.svg?branch=master)](https://travis-ci.org/bazi/gsb4j)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/kg.net.bazi.gsb4j/gsb4j-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/kg.net.bazi.gsb4j/gsb4j-core)
 [![Javadoc](https://javadoc.io/badge/kg.net.bazi.gsb4j/gsb4j-core.svg?color=brightgreen)](http://javadoc.io/doc/kg.net.bazi.gsb4j/gsb4j-core)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kg.net.bazi.gsb4j%3Agsb4j-parent&metric=alert_status)](https://sonarcloud.io/dashboard?id=kg.net.bazi.gsb4j%3Agsb4j-parent)
 
 Gsb4j is a Java client implementation of [Google Safe Browsing](https://developers.google.com/safe-browsing/) API v4.
 It has both Lookup API and Update API implementations.
@@ -126,3 +125,5 @@ This mailing list is open to everything Gsb4j related.
 If you find any bugs or issues related to working of Gsb4j, then you should be creating 
 an issue in Github. Contributions are always welcome!
 
+
+[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/dashboard?id=kg.net.bazi.gsb4j%3Agsb4j-parent)
