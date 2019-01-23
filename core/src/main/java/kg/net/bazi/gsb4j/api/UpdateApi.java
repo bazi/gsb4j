@@ -216,13 +216,13 @@ class UpdateApi extends SafeBrowsingApiBase implements SafeBrowsingApi {
             // TODO: back-off on status codes other than 200
             apiResponse = gson.fromJson(reader, ApiResponse.class);
         } finally {
-            if (apiResponse == null) {
-                throw new IllegalStateException("Invalid payload from API");
-            }
-            if (apiResponse.minimumWaitDuration != null) {
+            if (apiResponse != null && apiResponse.minimumWaitDuration != null) {
                 long duration = Gsb4j.durationToMillis(apiResponse.minimumWaitDuration);
                 stateHolder.setMinWaitDurationForFinds(duration);
             }
+        }
+        if (apiResponse == null) {
+            throw new IllegalStateException("Invalid payload from API");
         }
 
         List<ThreatMatch> responseMatches = Optional.ofNullable(apiResponse.matches).orElse(Collections.emptyList());

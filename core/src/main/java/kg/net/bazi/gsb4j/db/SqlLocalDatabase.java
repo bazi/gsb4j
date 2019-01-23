@@ -62,9 +62,10 @@ class SqlLocalDatabase implements LocalDatabase {
 
         String sql = "SELECT prefix FROM " + descriptor + " ORDER BY prefix";
         try ( Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
             List<String> result = new LinkedList<>();
-            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 result.add(rs.getString(1));
             }
@@ -111,8 +112,9 @@ class SqlLocalDatabase implements LocalDatabase {
         try ( Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, hash);
-            ResultSet rs = ps.executeQuery();
-            return rs.next();
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         } catch (SQLException ex) {
             throw new IOException(ex);
         }
