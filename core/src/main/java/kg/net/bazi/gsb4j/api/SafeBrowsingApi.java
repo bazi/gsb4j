@@ -28,21 +28,27 @@ import kg.net.bazi.gsb4j.data.ThreatMatch;
 public interface SafeBrowsingApi {
 
     /**
-     * Name to identify Lookup API client implementation.
-     */
-    String LOOKUP_API = "lookup";
-
-    /**
-     * Name to identify Update API client implementation.
-     */
-    String UPDATE_API = "update";
-
-    /**
      * Checks the supplied URL if it is in the threat lists of the Google Safe Browsing API.
      *
      * @param url URL to check
      * @return threat match if URL is found in one of threat lists; {@code null} otherwise which means URL is safe
      */
     ThreatMatch check(String url);
+
+    public class Type {
+
+        /**
+         * Name to identify Lookup API client implementation.
+         */
+        public static final String LOOKUP_API = "lookup";
+        /**
+         * Name to identify Update API client implementation.
+         */
+        public static final String UPDATE_API = "update";
+
+        private Type() {
+            // not to be initialized
+        }
+    }
 
 }

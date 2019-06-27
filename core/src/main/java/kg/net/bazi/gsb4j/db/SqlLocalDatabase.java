@@ -45,12 +45,12 @@ import org.slf4j.LoggerFactory;
  */
 class SqlLocalDatabase implements LocalDatabase {
 
+    static final int BATCH_SIZE = 50 * 1000;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlLocalDatabase.class);
 
     private static final Set<ThreatListDescriptor> CREATED_TABLES = new HashSet<>();
     private static final Lock LOCK = new ReentrantLock();
-
-    final int batchSize = 50 * 1000;
 
     @Inject
     @Gsb4jBinding
@@ -61,9 +61,9 @@ class SqlLocalDatabase implements LocalDatabase {
         checkTableForDescriptor(descriptor);
 
         String sql = "SELECT prefix FROM " + descriptor + " ORDER BY prefix";
-        try ( Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
 
             List<String> result = new LinkedList<>();
             while (rs.next()) {
@@ -81,14 +81,14 @@ class SqlLocalDatabase implements LocalDatabase {
         checkTableForDescriptor(descriptor);
 
         String sql = "INSERT INTO " + descriptor + " VALUES (?)";
-        try ( Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
             int offset = 0;
             int inserted = 0;
             for (String hash : hashes) {
                 ps.setString(1, hash);
                 inserted += ps.executeUpdate();
-                if (++offset == batchSize) {
+                if (++offset == BATCH_SIZE) {
                     conn.commit();
                     LOGGER.info("Inserted {} item(s)", inserted);
                     offset = 0;
@@ -109,10 +109,10 @@ class SqlLocalDatabase implements LocalDatabase {
         checkTableForDescriptor(descriptor);
 
         String sql = "SELECT prefix FROM " + descriptor + " WHERE prefix=?";
-        try ( Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, hash);
-            try ( ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
         } catch (SQLException ex) {
@@ -122,8 +122,8 @@ class SqlLocalDatabase implements LocalDatabase {
 
     @Override
     public void clear(ThreatListDescriptor descriptor) throws IOException {
-        try ( Connection conn = dataSource.getConnection();
-             Statement st = conn.createStatement()) {
+        try (Connection conn = dataSource.getConnection();
+            Statement st = conn.createStatement()) {
             st.execute("DROP TABLE IF EXISTS " + descriptor);
             conn.commit();
             LOCK.lock();
@@ -159,8 +159,8 @@ class SqlLocalDatabase implements LocalDatabase {
     private void createTable(ThreatListDescriptor descriptor) throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS " + descriptor
             + " (prefix TEXT CONSTRAINT pk PRIMARY KEY ASC ON CONFLICT REPLACE)";
-        try ( Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.execute();
             conn.commit();
         }

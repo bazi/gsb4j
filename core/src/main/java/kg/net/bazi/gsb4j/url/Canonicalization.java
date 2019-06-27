@@ -29,8 +29,6 @@ import java.util.regex.Pattern;
 import kg.net.bazi.gsb4j.util.IpUtils;
 import kg.net.bazi.gsb4j.util.PercentEncoder;
 import kg.net.bazi.gsb4j.util.UrlSplitter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to canonicalize URLs according to Google Safe Browsing API requirements.
@@ -38,8 +36,6 @@ import org.slf4j.LoggerFactory;
  * @author azilet
  */
 public class Canonicalization {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Canonicalization.class);
 
     /**
      * Pattern to match HTTP schemes in URLs.
@@ -131,25 +127,13 @@ public class Canonicalization {
         str = str.replaceAll("[\t\r\n]", "");
 
         // remove fragment
-        int fragmentIndex = str.indexOf("#");
+        int fragmentIndex = str.indexOf('#');
         if (fragmentIndex != -1) {
             str = str.substring(0, fragmentIndex);
         }
 
         // percent-unescape
-        while (PERCENT_SYMBOL_PATTERN.matcher(str).find()) {
-            StringBuffer sb = new StringBuffer();
-            Matcher matcher = PERCENT_SYMBOL_PATTERN.matcher(str);
-            while (matcher.find()) {
-                String decoded = percentEncoder.decode(matcher.group());
-                if (decoded.equals("$") || decoded.equals("\\")) {
-                    decoded = "\\" + decoded;
-                }
-                matcher.appendReplacement(sb, decoded);
-            }
-            matcher.appendTail(sb);
-            str = sb.toString();
-        }
+        str = percentUnescape(str);
 
         UrlSplitter.UrlParts parts = urlSplitter.split(str);
         if (parts == null) {
@@ -184,6 +168,24 @@ public class Canonicalization {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    private String percentUnescape(String str) {
+        // repeatedly percent-unescape the URL until it has no more percent-escapes
+        while (PERCENT_SYMBOL_PATTERN.matcher(str).find()) {
+            StringBuffer sb = new StringBuffer();
+            Matcher matcher = PERCENT_SYMBOL_PATTERN.matcher(str);
+            while (matcher.find()) {
+                String decoded = percentEncoder.decode(matcher.group());
+                if (decoded.equals("$") || decoded.equals("\\")) {
+                    decoded = "\\" + decoded;
+                }
+                matcher.appendReplacement(sb, decoded);
+            }
+            matcher.appendTail(sb);
+            str = sb.toString();
+        }
+        return str;
     }
 
     /**

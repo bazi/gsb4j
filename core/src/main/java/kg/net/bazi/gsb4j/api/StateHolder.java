@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
 class StateHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StateHolder.class);
-    private static final String UPDATE_MIN_WAIT_DURATION__KEY = "update_min_wait_duration";
+    private static final String UPDATE_MIN_WAIT_DURATION_KEY = "update_min_wait_duration";
     private static final String UPDATE_MIN_WAIT_TIMESTAMP_KEY = "update_min_wait_timestamp";
-    private static final String FIND_MIN_WAIT_DURATION__KEY = "find_min_wait_duration";
+    private static final String FIND_MIN_WAIT_DURATION_KEY = "find_min_wait_duration";
     private static final String FIND_MIN_WAIT_TIMESTAMP_KEY = "find_min_wait_timestamp";
 
     private final Gsb4jProperties properties;
@@ -57,7 +57,7 @@ class StateHolder {
 
         File file = getStatesFile(properties.getDataDirectory());
         if (file.exists()) {
-            try ( InputStream is = new FileInputStream(file)) {
+            try (InputStream is = new FileInputStream(file)) {
                 states.load(is);
             } catch (IOException ex) {
                 LOGGER.info("Failed to load client states", ex);
@@ -105,7 +105,7 @@ class StateHolder {
      * @param minimumWaitDuration minimum wait duration in millis
      */
     public void setMinWaitDurationForUpdates(long minimumWaitDuration) {
-        states.setProperty(UPDATE_MIN_WAIT_DURATION__KEY, Long.toString(minimumWaitDuration));
+        states.setProperty(UPDATE_MIN_WAIT_DURATION_KEY, Long.toString(minimumWaitDuration));
         states.setProperty(UPDATE_MIN_WAIT_TIMESTAMP_KEY, Long.toString(System.currentTimeMillis()));
         try {
             dumpToFile();
@@ -120,7 +120,7 @@ class StateHolder {
      * @param minimumWaitDuration minimum wait duration in millis
      */
     public void setMinWaitDurationForFinds(long minimumWaitDuration) {
-        states.setProperty(FIND_MIN_WAIT_DURATION__KEY, Long.toString(minimumWaitDuration));
+        states.setProperty(FIND_MIN_WAIT_DURATION_KEY, Long.toString(minimumWaitDuration));
         states.setProperty(FIND_MIN_WAIT_TIMESTAMP_KEY, Long.toString(System.currentTimeMillis()));
         try {
             dumpToFile();
@@ -135,7 +135,7 @@ class StateHolder {
      * @return {@code true} if list update requests are allowed; {@code false} otherwise
      */
     public boolean isUpdateAllowed() {
-        long minimumWaitDuration = Long.parseLong(states.getProperty(UPDATE_MIN_WAIT_DURATION__KEY, "0"));
+        long minimumWaitDuration = Long.parseLong(states.getProperty(UPDATE_MIN_WAIT_DURATION_KEY, "0"));
         if (minimumWaitDuration > 0) {
             long timestamp = Long.parseLong(states.getProperty(UPDATE_MIN_WAIT_TIMESTAMP_KEY));
             return minimumWaitDuration + timestamp < System.currentTimeMillis();
@@ -149,7 +149,7 @@ class StateHolder {
      * @return {@code true} if full hash requests are allowed; {@code false} otherwise
      */
     public boolean isFindAllowed() {
-        long minWaitDuration = Long.parseLong(states.getProperty(FIND_MIN_WAIT_DURATION__KEY, "0"));
+        long minWaitDuration = Long.parseLong(states.getProperty(FIND_MIN_WAIT_DURATION_KEY, "0"));
         if (minWaitDuration > 0) {
             long timestamp = Long.parseLong(states.getProperty(FIND_MIN_WAIT_TIMESTAMP_KEY));
             return minWaitDuration + timestamp < System.currentTimeMillis();
@@ -158,7 +158,7 @@ class StateHolder {
     }
 
     private File getStatesFile(Path parent) {
-        if (!Files.exists(parent)) {
+        if (!parent.toFile().exists()) {
             try {
                 Files.createDirectories(parent);
             } catch (IOException ex) {
@@ -170,7 +170,7 @@ class StateHolder {
 
     private synchronized void dumpToFile() throws IOException {
         File file = getStatesFile(properties.getDataDirectory());
-        try ( OutputStream os = new FileOutputStream(file)) {
+        try (OutputStream os = new FileOutputStream(file)) {
             states.store(os, "");
         }
     }

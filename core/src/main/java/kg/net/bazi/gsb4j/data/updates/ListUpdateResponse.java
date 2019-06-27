@@ -105,7 +105,7 @@ public class ListUpdateResponse {
     /**
      * The type of response sent to the client.
      */
-    public static enum ResponseType {
+    public enum ResponseType {
         RESPONSE_TYPE_UNSPECIFIED, PARTIAL_UPDATE, FULL_UPDATE
     }
 

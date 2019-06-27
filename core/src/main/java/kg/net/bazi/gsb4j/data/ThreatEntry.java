@@ -56,11 +56,11 @@ public class ThreatEntry {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.hash);
-        hash = 97 * hash + Objects.hashCode(this.url);
-        hash = 97 * hash + Objects.hashCode(this.digest);
-        return hash;
+        int hashCode = 7;
+        hashCode = 97 * hashCode + Objects.hashCode(this.hash);
+        hashCode = 97 * hashCode + Objects.hashCode(this.url);
+        hashCode = 97 * hashCode + Objects.hashCode(this.digest);
+        return hashCode;
     }
 
     @Override

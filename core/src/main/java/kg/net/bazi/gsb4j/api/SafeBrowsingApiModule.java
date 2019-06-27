@@ -33,8 +33,8 @@ public class SafeBrowsingApiModule extends AbstractModule {
     protected void configure() {
         bind(ThreatListUpdateRunner.class).asEagerSingleton();
 
-        bind(SafeBrowsingApi.class).annotatedWith(Names.named(SafeBrowsingApi.LOOKUP_API)).to(LookupApi.class);
-        bind(SafeBrowsingApi.class).annotatedWith(Names.named(SafeBrowsingApi.UPDATE_API)).to(UpdateApi.class);
+        bind(SafeBrowsingApi.class).annotatedWith(Names.named(SafeBrowsingApi.Type.LOOKUP_API)).to(LookupApi.class);
+        bind(SafeBrowsingApi.class).annotatedWith(Names.named(SafeBrowsingApi.Type.UPDATE_API)).to(UpdateApi.class);
         bind(SafeBrowsingApi.class).to(UpdateApi.class);
     }
 }

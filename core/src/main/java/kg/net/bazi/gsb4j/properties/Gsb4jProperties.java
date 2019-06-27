@@ -32,19 +32,6 @@ import kg.net.bazi.gsb4j.Gsb4j;
 public interface Gsb4jProperties {
 
     /**
-     * Configuration property name for API key.
-     */
-    String API_KEY = "api.key";
-    /**
-     * Configuration property name for HTTP Referrer value for the API key.
-     */
-    String API_HTTP_REFERRER = "api.http.referrer";
-    /**
-     * Configuration property name for Gsb4j data directory.
-     */
-    String DATA_DIRECTORY = "data.dir";
-
-    /**
      * Gets API key.
      *
      * @return API key

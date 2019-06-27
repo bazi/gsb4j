@@ -16,6 +16,7 @@
 
 package kg.net.bazi.gsb4j.http;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -33,9 +34,13 @@ class LookupApiServlet extends ServletBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LookupApiServlet.class);
 
+    final Provider<SafeBrowsingApi> lookupApiProvider;
+
     @Inject
-    @Named(SafeBrowsingApi.LOOKUP_API)
-    Provider<SafeBrowsingApi> lookupApiProvider;
+    public LookupApiServlet(Gson gson, @Named(SafeBrowsingApi.Type.LOOKUP_API) Provider<SafeBrowsingApi> lookupApiProvider) {
+        super(gson);
+        this.lookupApiProvider = lookupApiProvider;
+    }
 
     @Override
     Logger getLogger() {

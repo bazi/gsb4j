@@ -143,7 +143,7 @@ public class Gsb4j {
      * @return API implementation instance
      */
     public SafeBrowsingApi getApiClient(String name) {
-        List<String> validNames = Arrays.asList(SafeBrowsingApi.LOOKUP_API, SafeBrowsingApi.UPDATE_API);
+        List<String> validNames = Arrays.asList(SafeBrowsingApi.Type.LOOKUP_API, SafeBrowsingApi.Type.UPDATE_API);
         if (!validNames.contains(name)) {
             String names = String.join(", ", validNames);
             throw new IllegalArgumentException("Invalid API impl client name: " + name + ". Valid names: " + names);
@@ -192,7 +192,7 @@ public class Gsb4j {
         LOGGER.info("================== Gsb4j setup info ===================");
         LOGGER.info("Client ID     : {}", clientInfoProvider.getClientId());
         LOGGER.info("Client version: {}", clientInfoProvider.getClientVersion());
-        LOGGER.info("Data directory: {}", properties.getDataDirectory().toString());
+        LOGGER.info("Data directory: {}", properties.getDataDirectory());
         LOGGER.info("API key       : {}", maskApiKey(properties.getApiKey()));
         LOGGER.info("HTTP Referrer : {}", httpReferrer);
         LOGGER.info("=======================================================");

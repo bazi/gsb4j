@@ -36,7 +36,7 @@ class Gsb4jFileProperties implements Gsb4jProperties {
 
     @Inject
     public Gsb4jFileProperties(@Gsb4jBinding Properties properties) {
-        if (!properties.containsKey(API_KEY)) {
+        if (!properties.containsKey(Gsb4jPropertyKeys.API_KEY)) {
             throw new ProvisionException("API key not supplied");
         }
         this.properties = properties;
@@ -44,17 +44,17 @@ class Gsb4jFileProperties implements Gsb4jProperties {
 
     @Override
     public String getApiKey() {
-        return properties.getProperty(API_KEY);
+        return properties.getProperty(Gsb4jPropertyKeys.API_KEY);
     }
 
     @Override
     public String getApiHttpReferrer() {
-        return properties.getProperty(API_HTTP_REFERRER);
+        return properties.getProperty(Gsb4jPropertyKeys.API_HTTP_REFERRER);
     }
 
     @Override
     public Path getDataDirectory() {
-        String dataDir = properties.getProperty(DATA_DIRECTORY);
+        String dataDir = properties.getProperty(Gsb4jPropertyKeys.DATA_DIRECTORY);
         if (dataDir != null && !dataDir.isEmpty()) {
             return Paths.get(dataDir);
         }

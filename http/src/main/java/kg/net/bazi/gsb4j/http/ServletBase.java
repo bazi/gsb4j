@@ -17,7 +17,6 @@
 package kg.net.bazi.gsb4j.http;
 
 import com.google.gson.Gson;
-import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -38,8 +37,17 @@ abstract class ServletBase extends HttpServlet {
 
     public static final String URL_PARAM = "url";
 
-    @Inject
-    Gson gson;
+    final Gson gson;
+
+    /**
+     * Injection to this and extending servlet classes are done though constructors to conform to Sonar rule: Servlets
+     * should not have mutable instance fields
+     *
+     * @param gson JSON serializer
+     */
+    ServletBase(Gson gson) {
+        this.gson = gson;
+    }
 
     abstract Logger getLogger();
 
@@ -65,14 +73,16 @@ abstract class ServletBase extends HttpServlet {
         writeResponseJson(HttpServletResponse.SC_OK, json, resp);
     }
 
-    void writeResponse(int status, String data, HttpServletResponse resp) throws IOException {
-        try ( PrintWriter writer = resp.getWriter()) {
+    void writeResponse(int status, String data, HttpServletResponse resp) {
+        try (PrintWriter writer = resp.getWriter()) {
             writer.print(data);
+        } catch (IOException ex) {
+            getLogger().error("Failed to write response", ex);
         }
         resp.setStatus(status);
     }
 
-    void writeResponseJson(int status, String data, HttpServletResponse resp) throws IOException {
+    void writeResponseJson(int status, String data, HttpServletResponse resp) {
         resp.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         writeResponse(status, data, resp);
     }

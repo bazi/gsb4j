@@ -84,7 +84,7 @@ abstract class SafeBrowsingApiBase {
             for (ThreatMatch match : matches) {
                 sb.append(System.lineSeparator()).append(gson.toJson(match));
             }
-            getLogger().info("Multiple threat matches found: {}", sb.toString());
+            getLogger().info("Multiple threat matches found: {}", sb);
 
             for (ThreatMatch match : matches) {
                 if (match.getPlatformType() == PlatformType.ALL_PLATFORMS) {

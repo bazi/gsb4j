@@ -36,17 +36,17 @@ class Gsb4jSystemProperties implements Gsb4jProperties {
 
     @Override
     public String getApiKey() {
-        return System.getProperty(API_KEY);
+        return System.getProperty(Gsb4jPropertyKeys.API_KEY);
     }
 
     @Override
     public String getApiHttpReferrer() {
-        return System.getProperty(API_HTTP_REFERRER);
+        return System.getProperty(Gsb4jPropertyKeys.API_HTTP_REFERRER);
     }
 
     @Override
     public Path getDataDirectory() {
-        String dir = System.getProperty(DATA_DIRECTORY);
+        String dir = System.getProperty(Gsb4jPropertyKeys.DATA_DIRECTORY);
         if (dir != null && !dir.isEmpty()) {
             return Paths.get(dir);
         }

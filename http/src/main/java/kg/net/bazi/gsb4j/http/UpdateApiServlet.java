@@ -16,6 +16,7 @@
 
 package kg.net.bazi.gsb4j.http;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -33,9 +34,13 @@ class UpdateApiServlet extends ServletBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateApiServlet.class);
 
+    final Provider<SafeBrowsingApi> updateApiProvider;
+
     @Inject
-    @Named(SafeBrowsingApi.UPDATE_API)
-    Provider<SafeBrowsingApi> updateApiProvider;
+    public UpdateApiServlet(Gson gson, @Named(SafeBrowsingApi.Type.UPDATE_API) Provider<SafeBrowsingApi> updateApiProvider) {
+        super(gson);
+        this.updateApiProvider = updateApiProvider;
+    }
 
     @Override
     Logger getLogger() {

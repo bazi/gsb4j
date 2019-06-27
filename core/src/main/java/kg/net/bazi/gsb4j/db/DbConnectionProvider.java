@@ -45,7 +45,7 @@ class DbConnectionProvider implements Provider<DataSource> {
     @Inject
     DbConnectionProvider(Gsb4jProperties properties) {
         Path dataDir = properties.getDataDirectory();
-        if (!Files.exists(dataDir)) {
+        if (!dataDir.toFile().exists()) {
             try {
                 Files.createDirectories(dataDir);
             } catch (IOException ex) {

@@ -46,8 +46,8 @@ public class ThreatListGetter extends SafeBrowsingApiBase {
     public List<ThreatListDescriptor> getLists() {
         List<ThreatListDescriptor> threatLists;
         HttpUriRequest req = makeRequest(HttpGet.METHOD_NAME, "threatLists", null);
-        try ( CloseableHttpResponse resp = httpClient.execute(req);
-             Reader reader = getResponseReader(resp)) {
+        try (CloseableHttpResponse resp = httpClient.execute(req);
+            Reader reader = getResponseReader(resp)) {
             ThreatListsResponse apiResp = gson.fromJson(reader, ThreatListsResponse.class);
             threatLists = apiResp.threatLists;
         } catch (IOException ex) {
@@ -64,7 +64,7 @@ public class ThreatListGetter extends SafeBrowsingApiBase {
 
         StringBuilder sb = new StringBuilder();
         threatLists.forEach(d -> sb.append(System.lineSeparator()).append(d));
-        LOGGER.info("Fetched {} threat list descriptors:{}", threatLists.size(), sb.toString());
+        LOGGER.info("Fetched {} threat list descriptors:{}", threatLists.size(), sb);
 
         return threatLists;
     }

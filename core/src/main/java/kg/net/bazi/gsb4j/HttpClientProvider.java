@@ -145,11 +145,11 @@ class HttpClientProvider implements Provider<CloseableHttpClient> {
                 for (HeaderElement he : header.getElements()) {
                     if (he.getName().equalsIgnoreCase("gzip")) {
                         response.setEntity(new GzipDecompressingEntity(entity));
-                        break;
+                        return;
                     }
                     if (he.getName().equalsIgnoreCase("deflate")) {
                         response.setEntity(new DeflateDecompressingEntity(entity));
-                        break;
+                        return;
                     }
                 }
             }

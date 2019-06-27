@@ -28,14 +28,11 @@ and to get instances of API client implementations. Code fragment below illustra
 
 ```java
 Gsb4j gsb4j = Gsb4j.bootstrap(); // (1)
-SafeBrowsingApi api = gsb4j.getApiClient( SafeBrowsingApi.LOOKUP_API ); // (2)
-ThreatMatch threat = api.check( url ); // (3)
-if ( threat != null )
-{
+SafeBrowsingApi api = gsb4j.getApiClient(SafeBrowsingApi.Type.LOOKUP_API); // (2)
+ThreatMatch threat = api.check(url); // (3)
+if (threat != null) {
     // URL is not safe
-}
-else
-{
+} else {
     // URL is safe
 }
 gsb4j.shutdown(); // (4)
@@ -73,11 +70,10 @@ your properties file into that instance. Then you bootstrap Gsb4j with this Prop
 
 ```java
 Properties properties = new Properties();
-try ( Reader reader = new FileReader( "/path/to/your/file.properties" ) )
-{
-    properties.load( reader );
+try (Reader reader = new FileReader("/path/to/your/file.properties")) {
+    properties.load(reader);
 }
-Gsb4j gsb4j = Gsb4j.bootstrap( properties );
+Gsb4j gsb4j = Gsb4j.bootstrap(properties);
 ```
 
 ## HTTP Proxy
@@ -127,3 +123,5 @@ an issue in Github. Contributions are always welcome!
 
 
 [![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/dashboard?id=kg.net.bazi.gsb4j%3Agsb4j-parent)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=kg.net.bazi.gsb4j%3Agsb4j-parent&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=kg.net.bazi.gsb4j%3Agsb4j-parent)
+
