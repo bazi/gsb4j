@@ -90,7 +90,7 @@ public class CanonicalizationTest {
         Assert.assertEquals("http://host.com/ab%23cd", canon.canonicalize("http://host.com/ab%23cd"));
         Assert.assertEquals("http://host.com/twoslashes?more//slashes", canon.canonicalize(
             "http://host.com//twoslashes?more//slashes"));
-        Assert.assertEquals("http://unicodehost.com/", canon.canonicalize("uñicodehost.com"));
+        Assert.assertEquals("http://xn--uicodehost-t9a.com/", canon.canonicalize("uñicodehost.com"));
     }
 
 }
