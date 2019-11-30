@@ -116,11 +116,11 @@ public class Canonicalization {
         }
 
         // convert host part to ASCII Punycode if needed
-        boolean isAscii = CharMatcher.ascii().matchesAllOf(url);
+        boolean isAscii = CharMatcher.ascii().matchesAllOf(str);
         if (!isAscii) {
-            URL tmp = new URL(url);
+            URL tmp = new URL(str);
             String hostPunyCode = IDN.toASCII(tmp.getHost());
-            str = url.replace(tmp.getHost(), hostPunyCode);
+            str = str.replace(tmp.getHost(), hostPunyCode);
         }
 
         // remove white space chars
