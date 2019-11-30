@@ -19,7 +19,7 @@ You can use Gsb4j by including dependency declaration in your project. If you us
 <dependency>
     <groupId>kg.net.bazi.gsb4j</groupId>
     <artifactId>gsb4j-core</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
