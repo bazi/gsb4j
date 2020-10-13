@@ -56,7 +56,7 @@ public class ThreatListDescriptorsCache {
         readLock.lock();
         try {
             if (!cache.isEmpty()) {
-                return Collections.unmodifiableCollection(cache);
+                return Collections.unmodifiableCollection(new HashSet<>(cache));
             }
         } finally {
             readLock.unlock();
@@ -78,10 +78,10 @@ public class ThreatListDescriptorsCache {
         try {
             cache.clear();
             cache.addAll(ls);
+            return Collections.unmodifiableCollection(new HashSet<>(cache));
         } finally {
             writeLock.unlock();
         }
-        return Collections.unmodifiableCollection(cache);
     }
 
 }
