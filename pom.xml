@@ -26,7 +26,7 @@
     <url>https://github.com/bazi/gsb4j</url>
 
     <packaging>pom</packaging>
-    
+
     <modules>
         <module>core</module>
         <module>http</module>
@@ -71,7 +71,7 @@
         <url>https://github.com/bazi/gsb4j</url>
         <tag>HEAD</tag>
     </scm>
-    
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -82,7 +82,7 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-    
+
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -180,7 +180,7 @@
                     <version>3.6.0</version>
                     <configuration>
                         <showDeprecation>true</showDeprecation>
-                        <showDeprecation>true</showDeprecation>
+                        <showWarnings>true</showWarnings>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -368,7 +368,7 @@
             </plugin>
         </plugins>
     </reporting>
-    
+
     <profiles>
         <profile>
             <id>release</id>
@@ -440,16 +440,16 @@
             </build>
         </profile>
     </profiles>
-    
+
     <dependencyManagement>
-        
+
         <dependencies>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j-api.version}</version>
             </dependency>
-      
+
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
@@ -473,7 +473,7 @@
                 <artifactId>guice-servlet</artifactId>
                 <version>${guice.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
