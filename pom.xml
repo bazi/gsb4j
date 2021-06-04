@@ -100,7 +100,7 @@
         <jetty.version>9.4.35.v20201120</jetty.version>
         <HikariCP.version>3.3.1</HikariCP.version>
         <sqlite-jdbc.version>3.28.0</sqlite-jdbc.version>
-        <httpclient.version>4.5.9</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <junit.version>4.13.1</junit.version>
     </properties>
 
